@@ -1,0 +1,418 @@
+openapi: "3.0.0"
+info:
+  version: 0.1.0
+  title: dockyards-types
+  description: no
+components:
+  schemas:
+    overview:
+      properties:
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/organization_overview'
+      required:
+      - organizations
+    organization_overview:
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        clusters:
+          type: array
+          items:
+            $ref: '#/components/schemas/cluster_overview'
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/user_overview'
+      required:
+      - id
+      - name
+    cluster_overview:
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        deployments:
+          type: array
+          items:
+            $ref: '#/components/schemas/deployment_overview'
+      required:
+      - id
+      - name
+    deployment_overview:
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      required:
+      - id
+      - name
+    user_overview:
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+      required:
+      - id
+      - email
+    options:
+      properties:
+        version:
+          type: array
+          items:
+            type: string
+        node_pool_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/node_pool_options'
+          deprecated: true
+        storage_resource_types:
+          type: array
+          items:
+            type: string
+      required:
+      - version
+    organization:
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - created_at
+      - updated_at
+    tokens:
+      properties:
+        AccessToken:
+          type: string
+        RefreshToken:
+          type: string
+      required:
+      - AccessToken
+      - RefreshToken
+    login:
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+      - email
+      - password
+    deployment:
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        cluster_id:
+          type: string
+        namespace:
+          type: string
+        container_image:
+          type: string
+        helm_chart:
+          type: string
+        helm_repository:
+          type: string
+        helm_version:
+          type: string
+        helm_values:
+          type: object
+        credential_name:
+          type: string
+        port:
+          type: integer
+        status:
+          $ref: '#/components/schemas/deployment_status'
+        kustomize:
+          type: object
+          additionalProperties:
+            type: string
+            format: byte
+        type:
+          type: string
+          enum:
+          - container_image
+          - helm
+          - kustomize
+        provenience:
+          type: string
+      required:
+      - id
+      - cluster_id
+      - type
+    node_pool:
+      properties:
+        id:
+          type: string
+        cluster_id:
+          type: string
+        name:
+          type: string
+        control_plane:
+          type: boolean
+        control_plane_components_only:
+          type: boolean
+        load_balancer:
+          type: boolean
+        quantity:
+          type: integer
+        cpu_count:
+          type: integer
+        ram_size:
+          type: string
+        disk_size:
+          type: string
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/node'
+        storage_resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/storage_resource'
+      required:
+      - id
+      - cluster_id
+      - name
+      - quantity
+      - cpu_count
+      - ram_size
+      - disk_size
+      - nodes
+    node_pool_options:
+      properties:
+        name:
+          type: string
+        control_plane:
+          type: boolean
+        control_plane_components_only:
+          type: boolean
+        load_balancer:
+          type: boolean
+        quantity:
+          type: integer
+        cpu_count:
+          type: integer
+        ram_size:
+          type: string
+        disk_size:
+          type: string
+        storage_resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/storage_resource'
+      required:
+      - name
+      - quantity
+    cluster_options:
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        node_pool_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/node_pool_options'
+        ingress_provider:
+          type: string
+        no_ingress_provider:
+          type: boolean
+        no_cluster_apps:
+          type: boolean
+        allocate_internal_ip:
+          type: boolean
+        cluster_template:
+          type: string
+      required:
+      - name
+    cluster:
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        organization:
+          type: string
+        node_count:
+          type: integer
+        state:
+          type: string
+        node_pools:
+          type: array
+          items:
+            $ref: '#/components/schemas/node_pool'
+        version:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        allocate_internal_ip:
+          type: boolean
+      required:
+      - id
+      - name
+      - organization
+      - state
+      - version
+      - created_at
+      - node_count
+      - node_pools
+    credential:
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        organization:
+          type: string
+        data:
+          type: object
+          additionalProperties:
+            type: string
+            format: byte
+        credential_template:
+          type: string
+      required:
+      - id
+      - name
+      - organization
+    user:
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - email
+    app:
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+        app_steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/app_step'
+      required:
+      - id
+      - name
+    app_step:
+      properties:
+        name:
+          type: string
+        step_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/step_option'
+      required:
+      - name
+    step_option:
+      properties:
+        display_name:
+          type: string
+        json_pointer:
+          type: string
+        hidden:
+          type: boolean
+        type:
+          type: string
+        default:
+          type: string
+        selection:
+          type: array
+          items:
+            type: string
+        managed:
+          type: boolean
+        tags:
+          type: array
+          items:
+            type: string
+        toggle:
+          type: array
+          items:
+            type: string
+    deployment_status:
+      properties:
+        id:
+          type: string
+        deployment_id:
+          type: string
+        urls:
+          type: array
+          items:
+            type: string
+        state:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        health:
+          type: string
+          enum:
+          - error
+          - warning
+          - healthy
+      required:
+      - id
+      - deployment_id
+      - created_at
+    node:
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        state:
+          type: string
+      required:
+      - id
+      - name
+      - state
+    storage_resource:
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        quantity:
+          type: string
+      required:
+      - name
+      - quantity

@@ -1,0 +1,9 @@
+package: types
+generate:
+  models: true
+output: pkg/types/zz_generated.go
+output-options:
+  name-normalizer: ToCamelCaseWithInitialisms
+  skip-prune: true
+compatibility:
+  always-prefix-enum-values: true

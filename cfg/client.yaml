@@ -1,0 +1,9 @@
+package: client
+generate:
+  client: true
+  models: true
+output: pkg/client/zz_generated.go
+output-options:
+  name-normalizer: ToCamelCaseWithInitialisms
+import-mapping:
+  types.yaml: bitbucket.org/sudosweden/dockyards-api/pkg/types

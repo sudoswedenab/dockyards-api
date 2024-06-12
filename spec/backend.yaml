@@ -1,0 +1,401 @@
+openapi: "3.0.0"
+info:
+  version: 0.1.0
+  title: dockyards-backend
+  description: no
+security:
+- bearerAuth: []
+paths:
+  /v1/login:
+    post:
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/login'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/tokens'
+        400: {}
+  /v1/refresh:
+    post:
+      operationId: refresh
+      security: []
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/tokens'
+        401: {}
+        500: {}
+  /v1/cluster-options:
+    get:
+      operationId: getClusterOptions
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/options'
+        500: {}
+  /v1/clusters:
+    get:
+      operationId: getClusters
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'types.yaml#/components/schemas/cluster'
+  /v1/clusters/{cluster_id}:
+    get:
+      operationId: getCluster
+      parameters:
+      - name: cluster_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/cluster'
+        401: {}
+        500: {}
+    delete:
+      operationId: deleteCluster
+      parameters:
+      - name: cluster_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        202: {}
+        401: {}
+        500: {}
+  /v1/orgs:
+    get:
+      operationId: getOrganizations
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'types.yaml#/components/schemas/organization'
+  /v1/orgs/{organization_name}/clusters:
+    post:
+      operationId: createCluster
+      parameters:
+      - name: organization_name
+        required: true
+        in: path
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/cluster_options'
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/cluster'
+        401: {}
+        422: {}
+        500: {}
+  /v1/clusters/{cluster_id}/kubeconfig:
+    get:
+      operationId: getKubeconfig
+      parameters:
+      - name: cluster_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: string
+        401: {}
+        500: {} 
+  /v1/clusters/{cluster_id}/deployments:
+    get:
+      operationId: getDeployments
+      parameters:
+      - name: cluster_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'types.yaml#/components/schemas/deployment'
+        401: {}
+        500: {}
+    post:
+      operationId: createDeployment
+      parameters:
+      - name: cluster_id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/deployment'
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/deployment'
+        401: {}
+        422: {}
+        500: {}
+  /v1/deployments/{deployment_id}:
+    get:
+      operationId: getDeployment
+      parameters:
+      - name: deployment_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/deployment'
+        401: {}
+        500: {}
+    delete:
+      operationId: deleteDeployment
+      parameters:
+      - name: deployment_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        204: {}
+        401: {}
+        500: {}
+  /v1/credentials:
+    get:
+      operationId: getCredentials
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'types.yaml#/components/schemas/credential'
+        500: {}
+  /v1/orgs/{organization_name}/credentials:
+    post:
+      operationId: createOrganizationCredential
+      parameters:
+      - name: organization_name
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/credential'
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/credential'
+        401: {}
+        500: {}
+    get:
+      operationId: getOrganizationCredentials
+      parameters:
+      - name: organization_name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'types.yaml#/components/schemas/credential'
+        401: {}
+        500: {}
+  /v1/orgs/{organization_name}/credentials/{credential_name}:
+    delete:
+      operationId: deleteOrganizationCredential
+      parameters:
+      - name: organization_name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: credential_name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        204: {}
+        401: {}
+        500: {}
+    put:
+      operationId: updateOrganizationCredential
+      parameters:
+      - name: organization_name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: credential_name
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/credential'
+      responses:
+        200: {}
+        401: {}
+        500: {}
+    get:
+      operationId: getOrganizationCredential
+      parameters:
+      - name: organization_name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: credential_name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/credential'
+        500: {}
+  /v1/overview:
+    get:
+      operationId: getOverview
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/overview'
+  /v1/whoami:
+    get:
+      operationId: whoami
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/user'
+  /v1/clusters/{cluster_id}/node-pools:
+    post:
+      operationId: createNodePool
+      parameters:
+      - name: cluster_id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/node_pool_options'
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/node_pool'
+        401: {}
+        409: {}
+        500: {}
+  /v1/node-pools/{node_pool_id}:
+    get:
+      operationId: getNodePool
+      parameters:
+      - name: node_pool_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/node_pool'
+        401: {}
+        500: {}
+    delete:
+      operationId: deleteNodePool
+      parameters:
+      - name: node_pool_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        204: {}
+        401: {}
+        500: {}
+components:
+  securitySchemas:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
