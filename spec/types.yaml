@@ -67,11 +67,6 @@ components:
           type: array
           items:
             type: string
-        node_pool_options:
-          type: array
-          items:
-            $ref: '#/components/schemas/node_pool_options'
-          deprecated: true
         storage_resource_types:
           type: array
           items:
