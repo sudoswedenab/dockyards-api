@@ -79,21 +79,23 @@ type Credential struct {
 
 // Deployment defines model for deployment.
 type Deployment struct {
-	ClusterID      string                  `json:"cluster_id"`
-	ContainerImage *string                 `json:"container_image,omitempty"`
-	CredentialName *string                 `json:"credential_name,omitempty"`
-	HelmChart      *string                 `json:"helm_chart,omitempty"`
-	HelmRepository *string                 `json:"helm_repository,omitempty"`
-	HelmValues     *map[string]interface{} `json:"helm_values,omitempty"`
-	HelmVersion    *string                 `json:"helm_version,omitempty"`
-	ID             string                  `json:"id"`
-	Kustomize      *map[string][]byte      `json:"kustomize,omitempty"`
-	Name           *string                 `json:"name,omitempty"`
-	Namespace      *string                 `json:"namespace,omitempty"`
-	Port           *int                    `json:"port,omitempty"`
-	Provenience    *string                 `json:"provenience,omitempty"`
-	Status         *DeploymentStatus       `json:"status,omitempty"`
-	Type           DeploymentType          `json:"type"`
+	ClusterID               string                  `json:"cluster_id"`
+	ContainerImage          *string                 `json:"container_image,omitempty"`
+	CredentialName          *string                 `json:"credential_name,omitempty"`
+	DeploymentTemplate      *string                 `json:"deployment_template,omitempty"`
+	DeploymentTemplateInput *map[string]interface{} `json:"deployment_template_input,omitempty"`
+	HelmChart               *string                 `json:"helm_chart,omitempty"`
+	HelmRepository          *string                 `json:"helm_repository,omitempty"`
+	HelmValues              *map[string]interface{} `json:"helm_values,omitempty"`
+	HelmVersion             *string                 `json:"helm_version,omitempty"`
+	ID                      string                  `json:"id"`
+	Kustomize               *map[string][]byte      `json:"kustomize,omitempty"`
+	Name                    *string                 `json:"name,omitempty"`
+	Namespace               *string                 `json:"namespace,omitempty"`
+	Port                    *int                    `json:"port,omitempty"`
+	Provenience             *string                 `json:"provenience,omitempty"`
+	Status                  *DeploymentStatus       `json:"status,omitempty"`
+	Type                    DeploymentType          `json:"type"`
 }
 
 // DeploymentType defines model for Deployment.Type.

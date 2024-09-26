@@ -149,6 +149,10 @@ components:
           - kustomize
         provenience:
           type: string
+        deployment_template:
+          type: string
+        deployment_template_input:
+          type: object
       required:
       - id
       - cluster_id
