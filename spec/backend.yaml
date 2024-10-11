@@ -23,6 +23,11 @@ paths:
               schema:
                 $ref: 'types.yaml#/components/schemas/tokens'
         400: {}
+        422:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/unprocessable_entity_errors'
   /v1/refresh:
     post:
       operationId: refresh
