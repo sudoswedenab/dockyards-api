@@ -1876,6 +1876,7 @@ type CreateClusterResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON201      *externalRef0.Cluster
+	JSON422      *externalRef0.UnprocessableEntityErrors
 }
 
 // Status returns HTTPResponse.Status
@@ -2719,6 +2720,13 @@ func ParseCreateClusterResponse(rsp *http.Response) (*CreateClusterResponse, err
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest externalRef0.UnprocessableEntityErrors
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	}
 

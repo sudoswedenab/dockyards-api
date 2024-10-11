@@ -123,7 +123,11 @@ paths:
               schema:
                 $ref: 'types.yaml#/components/schemas/cluster'
         401: {}
-        422: {}
+        422:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/unprocessable_entity_errors'
         500: {}
   /v1/clusters/{cluster_id}/kubeconfig:
     get:
