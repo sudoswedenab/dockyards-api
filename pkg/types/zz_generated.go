@@ -216,6 +216,11 @@ type Tokens struct {
 	RefreshToken string `json:"RefreshToken"`
 }
 
+// UnprocessableEntityErrors defines model for unprocessable_entity_errors.
+type UnprocessableEntityErrors struct {
+	Errors []string `json:"errors"`
+}
+
 // User defines model for user.
 type User struct {
 	CreatedAt *time.Time `json:"created_at,omitempty"`

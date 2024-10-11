@@ -415,3 +415,11 @@ components:
       required:
       - name
       - quantity
+    unprocessable_entity_errors:
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+      required:
+      - errors
