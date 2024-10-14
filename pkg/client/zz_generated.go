@@ -164,9 +164,9 @@ type ClientInterface interface {
 	GetOrganizations(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateClusterWithBody request with any body
-	CreateClusterWithBody(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateClusterWithBody(ctx context.Context, organizationID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	CreateCluster(ctx context.Context, organizationName string, body CreateClusterJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateCluster(ctx context.Context, organizationID string, body CreateClusterJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetOrganizationCredentials request
 	GetOrganizationCredentials(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -413,8 +413,8 @@ func (c *Client) GetOrganizations(ctx context.Context, reqEditors ...RequestEdit
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateClusterWithBody(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateClusterRequestWithBody(c.Server, organizationName, contentType, body)
+func (c *Client) CreateClusterWithBody(ctx context.Context, organizationID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateClusterRequestWithBody(c.Server, organizationID, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -425,8 +425,8 @@ func (c *Client) CreateClusterWithBody(ctx context.Context, organizationName str
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateCluster(ctx context.Context, organizationName string, body CreateClusterJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateClusterRequest(c.Server, organizationName, body)
+func (c *Client) CreateCluster(ctx context.Context, organizationID string, body CreateClusterJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateClusterRequest(c.Server, organizationID, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1072,23 +1072,23 @@ func NewGetOrganizationsRequest(server string) (*http.Request, error) {
 }
 
 // NewCreateClusterRequest calls the generic CreateCluster builder with application/json body
-func NewCreateClusterRequest(server string, organizationName string, body CreateClusterJSONRequestBody) (*http.Request, error) {
+func NewCreateClusterRequest(server string, organizationID string, body CreateClusterJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCreateClusterRequestWithBody(server, organizationName, "application/json", bodyReader)
+	return NewCreateClusterRequestWithBody(server, organizationID, "application/json", bodyReader)
 }
 
 // NewCreateClusterRequestWithBody generates requests for CreateCluster with any type of body
-func NewCreateClusterRequestWithBody(server string, organizationName string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCreateClusterRequestWithBody(server string, organizationID string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_id", runtime.ParamLocationPath, organizationID)
 	if err != nil {
 		return nil, err
 	}
@@ -1511,9 +1511,9 @@ type ClientWithResponsesInterface interface {
 	GetOrganizationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetOrganizationsResponse, error)
 
 	// CreateClusterWithBodyWithResponse request with any body
-	CreateClusterWithBodyWithResponse(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterResponse, error)
+	CreateClusterWithBodyWithResponse(ctx context.Context, organizationID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterResponse, error)
 
-	CreateClusterWithResponse(ctx context.Context, organizationName string, body CreateClusterJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateClusterResponse, error)
+	CreateClusterWithResponse(ctx context.Context, organizationID string, body CreateClusterJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateClusterResponse, error)
 
 	// GetOrganizationCredentialsWithResponse request
 	GetOrganizationCredentialsWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*GetOrganizationCredentialsResponse, error)
@@ -2229,16 +2229,16 @@ func (c *ClientWithResponses) GetOrganizationsWithResponse(ctx context.Context, 
 }
 
 // CreateClusterWithBodyWithResponse request with arbitrary body returning *CreateClusterResponse
-func (c *ClientWithResponses) CreateClusterWithBodyWithResponse(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterResponse, error) {
-	rsp, err := c.CreateClusterWithBody(ctx, organizationName, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CreateClusterWithBodyWithResponse(ctx context.Context, organizationID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterResponse, error) {
+	rsp, err := c.CreateClusterWithBody(ctx, organizationID, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseCreateClusterResponse(rsp)
 }
 
-func (c *ClientWithResponses) CreateClusterWithResponse(ctx context.Context, organizationName string, body CreateClusterJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateClusterResponse, error) {
-	rsp, err := c.CreateCluster(ctx, organizationName, body, reqEditors...)
+func (c *ClientWithResponses) CreateClusterWithResponse(ctx context.Context, organizationID string, body CreateClusterJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateClusterResponse, error) {
+	rsp, err := c.CreateCluster(ctx, organizationID, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

@@ -101,11 +101,11 @@ paths:
                 type: array
                 items:
                   $ref: 'types.yaml#/components/schemas/organization'
-  /v1/orgs/{organization_name}/clusters:
+  /v1/orgs/{organization_id}/clusters:
     post:
       operationId: createCluster
       parameters:
-      - name: organization_name
+      - name: organization_id
         required: true
         in: path
         schema:
