@@ -243,6 +243,8 @@ components:
           type: boolean
         cluster_template:
           type: string
+        duration:
+          type: string
       required:
       - name
     cluster:
@@ -268,6 +270,8 @@ components:
           format: date-time
         allocate_internal_ip:
           type: boolean
+        duration:
+          type: string
       required:
       - id
       - name

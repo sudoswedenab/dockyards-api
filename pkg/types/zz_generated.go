@@ -40,6 +40,7 @@ type AppStep struct {
 type Cluster struct {
 	AllocateInternalIP *bool      `json:"allocate_internal_ip,omitempty"`
 	CreatedAt          time.Time  `json:"created_at"`
+	Duration           *string    `json:"duration,omitempty"`
 	ID                 string     `json:"id"`
 	Name               string     `json:"name"`
 	NodeCount          int        `json:"node_count"`
@@ -53,6 +54,7 @@ type Cluster struct {
 type ClusterOptions struct {
 	AllocateInternalIP *bool              `json:"allocate_internal_ip,omitempty"`
 	ClusterTemplate    *string            `json:"cluster_template,omitempty"`
+	Duration           *string            `json:"duration,omitempty"`
 	IngressProvider    *string            `json:"ingress_provider,omitempty"`
 	Name               string             `json:"name"`
 	NoClusterApps      *bool              `json:"no_cluster_apps,omitempty"`
