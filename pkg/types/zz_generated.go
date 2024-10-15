@@ -172,6 +172,7 @@ type Options struct {
 type Organization struct {
 	CreatedAt   time.Time `json:"created_at"`
 	DisplayName *string   `json:"display_name,omitempty"`
+	Duration    *string   `json:"duration,omitempty"`
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
 	UpdatedAt   time.Time `json:"updated_at"`
