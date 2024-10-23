@@ -27,6 +27,9 @@ type CreateNodePoolJSONRequestBody = externalRef0.NodePoolOptions
 // LoginJSONRequestBody defines body for Login for application/json ContentType.
 type LoginJSONRequestBody = externalRef0.Login
 
+// UpdateNodePoolJSONRequestBody defines body for UpdateNodePool for application/json ContentType.
+type UpdateNodePoolJSONRequestBody = externalRef0.NodePoolOptions
+
 // CreateClusterJSONRequestBody defines body for CreateCluster for application/json ContentType.
 type CreateClusterJSONRequestBody = externalRef0.ClusterOptions
 
@@ -80,6 +83,9 @@ type ServerInterface interface {
 
 	// (GET /v1/node-pools/{node_pool_id})
 	GetNodePool(w http.ResponseWriter, r *http.Request, nodePoolID string)
+
+	// (PATCH /v1/node-pools/{node_pool_id})
+	UpdateNodePool(w http.ResponseWriter, r *http.Request, nodePoolID string)
 
 	// (GET /v1/orgs)
 	GetOrganizations(w http.ResponseWriter, r *http.Request)
@@ -458,6 +464,34 @@ func (siw *ServerInterfaceWrapper) GetNodePool(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetNodePool(w, r, nodePoolID)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// UpdateNodePool operation middleware
+func (siw *ServerInterfaceWrapper) UpdateNodePool(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "node_pool_id" -------------
+	var nodePoolID string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "node_pool_id", r.PathValue("node_pool_id"), &nodePoolID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "node_pool_id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateNodePool(w, r, nodePoolID)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -856,6 +890,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("POST "+options.BaseURL+"/v1/login", wrapper.Login)
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/node-pools/{node_pool_id}", wrapper.DeleteNodePool)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/node-pools/{node_pool_id}", wrapper.GetNodePool)
+	m.HandleFunc("PATCH "+options.BaseURL+"/v1/node-pools/{node_pool_id}", wrapper.UpdateNodePool)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs", wrapper.GetOrganizations)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/orgs/{organization_name}/clusters", wrapper.CreateCluster)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/credentials", wrapper.GetOrganizationCredentials)

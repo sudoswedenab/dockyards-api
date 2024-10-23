@@ -402,6 +402,29 @@ paths:
         204: {}
         401: {}
         500: {}
+    patch:
+      operationId: updateNodePool
+      parameters:
+      - name: node_pool_id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/node_pool_options'
+      responses:
+        202:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/node_pool'
+        401: {}
+        422: {}
+        500: {}
 components:
   securitySchemas:
     bearerAuth:
