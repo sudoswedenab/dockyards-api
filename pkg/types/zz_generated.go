@@ -158,8 +158,8 @@ type NodePoolOptions struct {
 	CPUCount                   *int               `json:"cpu_count,omitempty"`
 	DiskSize                   *string            `json:"disk_size,omitempty"`
 	LoadBalancer               *bool              `json:"load_balancer,omitempty"`
-	Name                       string             `json:"name"`
-	Quantity                   int                `json:"quantity"`
+	Name                       *string            `json:"name,omitempty"`
+	Quantity                   *int               `json:"quantity,omitempty"`
 	RAMSize                    *string            `json:"ram_size,omitempty"`
 	StorageResources           *[]StorageResource `json:"storage_resources,omitempty"`
 }

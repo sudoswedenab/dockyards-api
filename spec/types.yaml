@@ -220,9 +220,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/storage_resource'
-      required:
-      - name
-      - quantity
     cluster_options:
       properties:
         name:
