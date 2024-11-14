@@ -239,3 +239,13 @@ type UserOverview struct {
 	Email string `json:"email"`
 	ID    string `json:"id"`
 }
+
+// Workload defines model for workload.
+type Workload struct {
+	ID                   *string                 `json:"id,omitempty"`
+	Input                *map[string]interface{} `json:"input,omitempty"`
+	Name                 *string                 `json:"name,omitempty"`
+	Namespace            *string                 `json:"namespace,omitempty"`
+	Provenience          *string                 `json:"provenience,omitempty"`
+	WorkloadTemplateName *string                 `json:"workload_template_name,omitempty"`
+}

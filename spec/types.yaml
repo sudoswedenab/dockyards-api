@@ -426,3 +426,17 @@ components:
             type: string
       required:
       - errors
+    workload:
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        workload_template_name:
+          type: string
+        input:
+          type: object
+        namespace:
+          type: string
+        provenience:
+          type: string
