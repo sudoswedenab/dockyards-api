@@ -440,3 +440,13 @@ components:
           type: string
         provenience:
           type: string
+    ip_pool:
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        addresses:
+          type: array
+          items:
+            type: string

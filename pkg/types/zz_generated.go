@@ -122,6 +122,13 @@ type DeploymentStatus struct {
 // DeploymentStatusHealth defines model for DeploymentStatus.Health.
 type DeploymentStatusHealth string
 
+// IPPool defines model for ip_pool.
+type IPPool struct {
+	Addresses *[]string `json:"addresses,omitempty"`
+	ID        *string   `json:"id,omitempty"`
+	Name      *string   `json:"name,omitempty"`
+}
+
 // Login defines model for login.
 type Login struct {
 	Email    string `json:"email"`
