@@ -117,6 +117,9 @@ type ServerInterface interface {
 	// (PUT /v1/orgs/{organization_name}/credentials/{credential_name})
 	UpdateOrganizationCredential(w http.ResponseWriter, r *http.Request, organizationName string, credentialName string)
 
+	// (GET /v1/orgs/{organization_name}/ip-pools)
+	GetIPPools(w http.ResponseWriter, r *http.Request, organizationName string)
+
 	// (GET /v1/overview)
 	GetOverview(w http.ResponseWriter, r *http.Request)
 
@@ -805,6 +808,34 @@ func (siw *ServerInterfaceWrapper) UpdateOrganizationCredential(w http.ResponseW
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
+// GetIPPools operation middleware
+func (siw *ServerInterfaceWrapper) GetIPPools(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "organization_name" -------------
+	var organizationName string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "organization_name", r.PathValue("organization_name"), &organizationName, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "organization_name", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetIPPools(w, r, organizationName)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
 // GetOverview operation middleware
 func (siw *ServerInterfaceWrapper) GetOverview(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -992,6 +1023,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/orgs/{organization_name}/credentials/{credential_name}", wrapper.DeleteOrganizationCredential)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/credentials/{credential_name}", wrapper.GetOrganizationCredential)
 	m.HandleFunc("PUT "+options.BaseURL+"/v1/orgs/{organization_name}/credentials/{credential_name}", wrapper.UpdateOrganizationCredential)
+	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/ip-pools", wrapper.GetIPPools)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/overview", wrapper.GetOverview)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/refresh", wrapper.Refresh)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/whoami", wrapper.Whoami)

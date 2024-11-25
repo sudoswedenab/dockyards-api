@@ -206,6 +206,9 @@ type ClientInterface interface {
 
 	UpdateOrganizationCredential(ctx context.Context, organizationName string, credentialName string, body UpdateOrganizationCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetIPPools request
+	GetIPPools(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetOverview request
 	GetOverview(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -590,6 +593,18 @@ func (c *Client) UpdateOrganizationCredentialWithBody(ctx context.Context, organ
 
 func (c *Client) UpdateOrganizationCredential(ctx context.Context, organizationName string, credentialName string, body UpdateOrganizationCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateOrganizationCredentialRequest(c.Server, organizationName, credentialName, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetIPPools(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetIPPoolsRequest(c.Server, organizationName)
 	if err != nil {
 		return nil, err
 	}
@@ -1563,6 +1578,40 @@ func NewUpdateOrganizationCredentialRequestWithBody(server string, organizationN
 	return req, nil
 }
 
+// NewGetIPPoolsRequest generates requests for GetIPPools
+func NewGetIPPoolsRequest(server string, organizationName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/orgs/%s/ip-pools", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetOverviewRequest generates requests for GetOverview
 func NewGetOverviewRequest(server string) (*http.Request, error) {
 	var err error
@@ -1774,6 +1823,9 @@ type ClientWithResponsesInterface interface {
 	UpdateOrganizationCredentialWithBodyWithResponse(ctx context.Context, organizationName string, credentialName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateOrganizationCredentialResponse, error)
 
 	UpdateOrganizationCredentialWithResponse(ctx context.Context, organizationName string, credentialName string, body UpdateOrganizationCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateOrganizationCredentialResponse, error)
+
+	// GetIPPoolsWithResponse request
+	GetIPPoolsWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*GetIPPoolsResponse, error)
 
 	// GetOverviewWithResponse request
 	GetOverviewWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetOverviewResponse, error)
@@ -2308,6 +2360,28 @@ func (r UpdateOrganizationCredentialResponse) StatusCode() int {
 	return 0
 }
 
+type GetIPPoolsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]externalRef0.IPPool
+}
+
+// Status returns HTTPResponse.Status
+func (r GetIPPoolsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetIPPoolsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetOverviewResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2652,6 +2726,15 @@ func (c *ClientWithResponses) UpdateOrganizationCredentialWithResponse(ctx conte
 		return nil, err
 	}
 	return ParseUpdateOrganizationCredentialResponse(rsp)
+}
+
+// GetIPPoolsWithResponse request returning *GetIPPoolsResponse
+func (c *ClientWithResponses) GetIPPoolsWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*GetIPPoolsResponse, error) {
+	rsp, err := c.GetIPPools(ctx, organizationName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetIPPoolsResponse(rsp)
 }
 
 // GetOverviewWithResponse request returning *GetOverviewResponse
@@ -3244,6 +3327,32 @@ func ParseUpdateOrganizationCredentialResponse(rsp *http.Response) (*UpdateOrgan
 	response := &UpdateOrganizationCredentialResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetIPPoolsResponse parses an HTTP response from a GetIPPoolsWithResponse call
+func ParseGetIPPoolsResponse(rsp *http.Response) (*GetIPPoolsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetIPPoolsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []externalRef0.IPPool
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	}
 
 	return response, nil
