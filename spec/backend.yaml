@@ -208,6 +208,41 @@ paths:
         401: {}
         404: {}
         500: {}
+    put:
+      operationId: updateClusterWorkload
+      parameters:
+      - name: organization_name
+        required: true
+        in: path
+        schema:
+          type: string
+      - name: cluster_name
+        required: true
+        in: path
+        schema:
+          type: string
+      - name: workload_name
+        required: true
+        in: path
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/workload'
+      responses:
+        202: {}
+        400: {}
+        401: {}
+        404: {}
+        422:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/unprocessable_entity_errors'
+        500: {}
   /v1/clusters/{cluster_id}/kubeconfig:
     get:
       operationId: getKubeconfig

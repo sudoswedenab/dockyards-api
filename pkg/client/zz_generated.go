@@ -39,6 +39,9 @@ type CreateClusterJSONRequestBody = externalRef0.ClusterOptions
 // CreateClusterWorkloadJSONRequestBody defines body for CreateClusterWorkload for application/json ContentType.
 type CreateClusterWorkloadJSONRequestBody = externalRef0.Workload
 
+// UpdateClusterWorkloadJSONRequestBody defines body for UpdateClusterWorkload for application/json ContentType.
+type UpdateClusterWorkloadJSONRequestBody = externalRef0.Workload
+
 // CreateOrganizationCredentialJSONRequestBody defines body for CreateOrganizationCredential for application/json ContentType.
 type CreateOrganizationCredentialJSONRequestBody = externalRef0.Credential
 
@@ -186,6 +189,11 @@ type ClientInterface interface {
 
 	// DeleteClusterWorkload request
 	DeleteClusterWorkload(ctx context.Context, organizationName string, clusterName string, workloadName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateClusterWorkloadWithBody request with any body
+	UpdateClusterWorkloadWithBody(ctx context.Context, organizationName string, clusterName string, workloadName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateClusterWorkload(ctx context.Context, organizationName string, clusterName string, workloadName string, body UpdateClusterWorkloadJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetOrganizationCredentials request
 	GetOrganizationCredentials(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -509,6 +517,30 @@ func (c *Client) CreateClusterWorkload(ctx context.Context, organizationName str
 
 func (c *Client) DeleteClusterWorkload(ctx context.Context, organizationName string, clusterName string, workloadName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteClusterWorkloadRequest(c.Server, organizationName, clusterName, workloadName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateClusterWorkloadWithBody(ctx context.Context, organizationName string, clusterName string, workloadName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateClusterWorkloadRequestWithBody(c.Server, organizationName, clusterName, workloadName, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateClusterWorkload(ctx context.Context, organizationName string, clusterName string, workloadName string, body UpdateClusterWorkloadJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateClusterWorkloadRequest(c.Server, organizationName, clusterName, workloadName, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1361,6 +1393,67 @@ func NewDeleteClusterWorkloadRequest(server string, organizationName string, clu
 	return req, nil
 }
 
+// NewUpdateClusterWorkloadRequest calls the generic UpdateClusterWorkload builder with application/json body
+func NewUpdateClusterWorkloadRequest(server string, organizationName string, clusterName string, workloadName string, body UpdateClusterWorkloadJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateClusterWorkloadRequestWithBody(server, organizationName, clusterName, workloadName, "application/json", bodyReader)
+}
+
+// NewUpdateClusterWorkloadRequestWithBody generates requests for UpdateClusterWorkload with any type of body
+func NewUpdateClusterWorkloadRequestWithBody(server string, organizationName string, clusterName string, workloadName string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "cluster_name", runtime.ParamLocationPath, clusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "workload_name", runtime.ParamLocationPath, workloadName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/orgs/%s/clusters/%s/workloads/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetOrganizationCredentialsRequest generates requests for GetOrganizationCredentials
 func NewGetOrganizationCredentialsRequest(server string, organizationName string) (*http.Request, error) {
 	var err error
@@ -1804,6 +1897,11 @@ type ClientWithResponsesInterface interface {
 
 	// DeleteClusterWorkloadWithResponse request
 	DeleteClusterWorkloadWithResponse(ctx context.Context, organizationName string, clusterName string, workloadName string, reqEditors ...RequestEditorFn) (*DeleteClusterWorkloadResponse, error)
+
+	// UpdateClusterWorkloadWithBodyWithResponse request with any body
+	UpdateClusterWorkloadWithBodyWithResponse(ctx context.Context, organizationName string, clusterName string, workloadName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateClusterWorkloadResponse, error)
+
+	UpdateClusterWorkloadWithResponse(ctx context.Context, organizationName string, clusterName string, workloadName string, body UpdateClusterWorkloadJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateClusterWorkloadResponse, error)
 
 	// GetOrganizationCredentialsWithResponse request
 	GetOrganizationCredentialsWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*GetOrganizationCredentialsResponse, error)
@@ -2252,6 +2350,28 @@ func (r DeleteClusterWorkloadResponse) StatusCode() int {
 	return 0
 }
 
+type UpdateClusterWorkloadResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON422      *externalRef0.UnprocessableEntityErrors
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateClusterWorkloadResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateClusterWorkloadResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetOrganizationCredentialsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2665,6 +2785,23 @@ func (c *ClientWithResponses) DeleteClusterWorkloadWithResponse(ctx context.Cont
 		return nil, err
 	}
 	return ParseDeleteClusterWorkloadResponse(rsp)
+}
+
+// UpdateClusterWorkloadWithBodyWithResponse request with arbitrary body returning *UpdateClusterWorkloadResponse
+func (c *ClientWithResponses) UpdateClusterWorkloadWithBodyWithResponse(ctx context.Context, organizationName string, clusterName string, workloadName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateClusterWorkloadResponse, error) {
+	rsp, err := c.UpdateClusterWorkloadWithBody(ctx, organizationName, clusterName, workloadName, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateClusterWorkloadResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateClusterWorkloadWithResponse(ctx context.Context, organizationName string, clusterName string, workloadName string, body UpdateClusterWorkloadJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateClusterWorkloadResponse, error) {
+	rsp, err := c.UpdateClusterWorkload(ctx, organizationName, clusterName, workloadName, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateClusterWorkloadResponse(rsp)
 }
 
 // GetOrganizationCredentialsWithResponse request returning *GetOrganizationCredentialsResponse
@@ -3217,6 +3354,32 @@ func ParseDeleteClusterWorkloadResponse(rsp *http.Response) (*DeleteClusterWorkl
 	response := &DeleteClusterWorkloadResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseUpdateClusterWorkloadResponse parses an HTTP response from a UpdateClusterWorkloadWithResponse call
+func ParseUpdateClusterWorkloadResponse(rsp *http.Response) (*UpdateClusterWorkloadResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateClusterWorkloadResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest externalRef0.UnprocessableEntityErrors
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	}
 
 	return response, nil

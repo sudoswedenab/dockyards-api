@@ -36,6 +36,9 @@ type CreateClusterJSONRequestBody = externalRef0.ClusterOptions
 // CreateClusterWorkloadJSONRequestBody defines body for CreateClusterWorkload for application/json ContentType.
 type CreateClusterWorkloadJSONRequestBody = externalRef0.Workload
 
+// UpdateClusterWorkloadJSONRequestBody defines body for UpdateClusterWorkload for application/json ContentType.
+type UpdateClusterWorkloadJSONRequestBody = externalRef0.Workload
+
 // CreateOrganizationCredentialJSONRequestBody defines body for CreateOrganizationCredential for application/json ContentType.
 type CreateOrganizationCredentialJSONRequestBody = externalRef0.Credential
 
@@ -101,6 +104,9 @@ type ServerInterface interface {
 
 	// (DELETE /v1/orgs/{organization_name}/clusters/{cluster_name}/workloads/{workload_name})
 	DeleteClusterWorkload(w http.ResponseWriter, r *http.Request, organizationName string, clusterName string, workloadName string)
+
+	// (PUT /v1/orgs/{organization_name}/clusters/{cluster_name}/workloads/{workload_name})
+	UpdateClusterWorkload(w http.ResponseWriter, r *http.Request, organizationName string, clusterName string, workloadName string)
 
 	// (GET /v1/orgs/{organization_name}/credentials)
 	GetOrganizationCredentials(w http.ResponseWriter, r *http.Request, organizationName string)
@@ -641,6 +647,52 @@ func (siw *ServerInterfaceWrapper) DeleteClusterWorkload(w http.ResponseWriter, 
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
+// UpdateClusterWorkload operation middleware
+func (siw *ServerInterfaceWrapper) UpdateClusterWorkload(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "organization_name" -------------
+	var organizationName string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "organization_name", r.PathValue("organization_name"), &organizationName, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "organization_name", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "cluster_name" -------------
+	var clusterName string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "cluster_name", r.PathValue("cluster_name"), &clusterName, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "cluster_name", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "workload_name" -------------
+	var workloadName string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workload_name", r.PathValue("workload_name"), &workloadName, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "workload_name", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateClusterWorkload(w, r, organizationName, clusterName, workloadName)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
 // GetOrganizationCredentials operation middleware
 func (siw *ServerInterfaceWrapper) GetOrganizationCredentials(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1018,6 +1070,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("POST "+options.BaseURL+"/v1/orgs/{organization_name}/clusters", wrapper.CreateCluster)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/orgs/{organization_name}/clusters/{cluster_name}/workloads", wrapper.CreateClusterWorkload)
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/orgs/{organization_name}/clusters/{cluster_name}/workloads/{workload_name}", wrapper.DeleteClusterWorkload)
+	m.HandleFunc("PUT "+options.BaseURL+"/v1/orgs/{organization_name}/clusters/{cluster_name}/workloads/{workload_name}", wrapper.UpdateClusterWorkload)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/credentials", wrapper.GetOrganizationCredentials)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/orgs/{organization_name}/credentials", wrapper.CreateOrganizationCredential)
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/orgs/{organization_name}/credentials/{credential_name}", wrapper.DeleteOrganizationCredential)
