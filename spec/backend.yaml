@@ -183,6 +183,31 @@ paths:
               schema:
                 $ref: 'types.yaml#/components/schemas/unprocessable_entity_errors'
         500: {}
+    get:
+      operationId: getClusterWorkloads
+      parameters:
+      - name: organization_name
+        required: true
+        in: path
+        schema:
+          type: string
+      - name: cluster_name
+        required: true
+        in: path
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'types.yaml#/components/schemas/workload'
+        400: {}
+        401: {}
+        404: {}
+        500: {}
   /v1/orgs/{organization_name}/clusters/{cluster_name}/workloads/{workload_name}:
     delete:
       operationId: deleteClusterWorkload
@@ -242,6 +267,34 @@ paths:
             application/json:
               schema:
                 $ref: 'types.yaml#/components/schemas/unprocessable_entity_errors'
+        500: {}
+    get:
+      operationId: getClusterWorkload
+      parameters:
+      - name: organization_name
+        required: true
+        in: path
+        schema:
+          type: string
+      - name: cluster_name
+        required: true
+        in: path
+        schema:
+          type: string
+      - name: workload_name
+        required: true
+        in: path
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/workload'
+        400: {}
+        401: {}
+        404: {}
         500: {}
   /v1/clusters/{cluster_id}/kubeconfig:
     get:

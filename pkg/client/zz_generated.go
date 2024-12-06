@@ -182,6 +182,9 @@ type ClientInterface interface {
 
 	CreateCluster(ctx context.Context, organizationName string, body CreateClusterJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetClusterWorkloads request
+	GetClusterWorkloads(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateClusterWorkloadWithBody request with any body
 	CreateClusterWorkloadWithBody(ctx context.Context, organizationName string, clusterName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -189,6 +192,9 @@ type ClientInterface interface {
 
 	// DeleteClusterWorkload request
 	DeleteClusterWorkload(ctx context.Context, organizationName string, clusterName string, workloadName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetClusterWorkload request
+	GetClusterWorkload(ctx context.Context, organizationName string, clusterName string, workloadName string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// UpdateClusterWorkloadWithBody request with any body
 	UpdateClusterWorkloadWithBody(ctx context.Context, organizationName string, clusterName string, workloadName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -491,6 +497,18 @@ func (c *Client) CreateCluster(ctx context.Context, organizationName string, bod
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetClusterWorkloads(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetClusterWorkloadsRequest(c.Server, organizationName, clusterName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) CreateClusterWorkloadWithBody(ctx context.Context, organizationName string, clusterName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateClusterWorkloadRequestWithBody(c.Server, organizationName, clusterName, contentType, body)
 	if err != nil {
@@ -517,6 +535,18 @@ func (c *Client) CreateClusterWorkload(ctx context.Context, organizationName str
 
 func (c *Client) DeleteClusterWorkload(ctx context.Context, organizationName string, clusterName string, workloadName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteClusterWorkloadRequest(c.Server, organizationName, clusterName, workloadName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetClusterWorkload(ctx context.Context, organizationName string, clusterName string, workloadName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetClusterWorkloadRequest(c.Server, organizationName, clusterName, workloadName)
 	if err != nil {
 		return nil, err
 	}
@@ -1291,6 +1321,47 @@ func NewCreateClusterRequestWithBody(server string, organizationName string, con
 	return req, nil
 }
 
+// NewGetClusterWorkloadsRequest generates requests for GetClusterWorkloads
+func NewGetClusterWorkloadsRequest(server string, organizationName string, clusterName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "cluster_name", runtime.ParamLocationPath, clusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/orgs/%s/clusters/%s/workloads", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewCreateClusterWorkloadRequest calls the generic CreateClusterWorkload builder with application/json body
 func NewCreateClusterWorkloadRequest(server string, organizationName string, clusterName string, body CreateClusterWorkloadJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1386,6 +1457,54 @@ func NewDeleteClusterWorkloadRequest(server string, organizationName string, clu
 	}
 
 	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetClusterWorkloadRequest generates requests for GetClusterWorkload
+func NewGetClusterWorkloadRequest(server string, organizationName string, clusterName string, workloadName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "cluster_name", runtime.ParamLocationPath, clusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "workload_name", runtime.ParamLocationPath, workloadName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/orgs/%s/clusters/%s/workloads/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -1890,6 +2009,9 @@ type ClientWithResponsesInterface interface {
 
 	CreateClusterWithResponse(ctx context.Context, organizationName string, body CreateClusterJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateClusterResponse, error)
 
+	// GetClusterWorkloadsWithResponse request
+	GetClusterWorkloadsWithResponse(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*GetClusterWorkloadsResponse, error)
+
 	// CreateClusterWorkloadWithBodyWithResponse request with any body
 	CreateClusterWorkloadWithBodyWithResponse(ctx context.Context, organizationName string, clusterName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterWorkloadResponse, error)
 
@@ -1897,6 +2019,9 @@ type ClientWithResponsesInterface interface {
 
 	// DeleteClusterWorkloadWithResponse request
 	DeleteClusterWorkloadWithResponse(ctx context.Context, organizationName string, clusterName string, workloadName string, reqEditors ...RequestEditorFn) (*DeleteClusterWorkloadResponse, error)
+
+	// GetClusterWorkloadWithResponse request
+	GetClusterWorkloadWithResponse(ctx context.Context, organizationName string, clusterName string, workloadName string, reqEditors ...RequestEditorFn) (*GetClusterWorkloadResponse, error)
 
 	// UpdateClusterWorkloadWithBodyWithResponse request with any body
 	UpdateClusterWorkloadWithBodyWithResponse(ctx context.Context, organizationName string, clusterName string, workloadName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateClusterWorkloadResponse, error)
@@ -2308,6 +2433,28 @@ func (r CreateClusterResponse) StatusCode() int {
 	return 0
 }
 
+type GetClusterWorkloadsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]externalRef0.Workload
+}
+
+// Status returns HTTPResponse.Status
+func (r GetClusterWorkloadsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetClusterWorkloadsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type CreateClusterWorkloadResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2344,6 +2491,28 @@ func (r DeleteClusterWorkloadResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r DeleteClusterWorkloadResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetClusterWorkloadResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *externalRef0.Workload
+}
+
+// Status returns HTTPResponse.Status
+func (r GetClusterWorkloadResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetClusterWorkloadResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2761,6 +2930,15 @@ func (c *ClientWithResponses) CreateClusterWithResponse(ctx context.Context, org
 	return ParseCreateClusterResponse(rsp)
 }
 
+// GetClusterWorkloadsWithResponse request returning *GetClusterWorkloadsResponse
+func (c *ClientWithResponses) GetClusterWorkloadsWithResponse(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*GetClusterWorkloadsResponse, error) {
+	rsp, err := c.GetClusterWorkloads(ctx, organizationName, clusterName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetClusterWorkloadsResponse(rsp)
+}
+
 // CreateClusterWorkloadWithBodyWithResponse request with arbitrary body returning *CreateClusterWorkloadResponse
 func (c *ClientWithResponses) CreateClusterWorkloadWithBodyWithResponse(ctx context.Context, organizationName string, clusterName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterWorkloadResponse, error) {
 	rsp, err := c.CreateClusterWorkloadWithBody(ctx, organizationName, clusterName, contentType, body, reqEditors...)
@@ -2785,6 +2963,15 @@ func (c *ClientWithResponses) DeleteClusterWorkloadWithResponse(ctx context.Cont
 		return nil, err
 	}
 	return ParseDeleteClusterWorkloadResponse(rsp)
+}
+
+// GetClusterWorkloadWithResponse request returning *GetClusterWorkloadResponse
+func (c *ClientWithResponses) GetClusterWorkloadWithResponse(ctx context.Context, organizationName string, clusterName string, workloadName string, reqEditors ...RequestEditorFn) (*GetClusterWorkloadResponse, error) {
+	rsp, err := c.GetClusterWorkload(ctx, organizationName, clusterName, workloadName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetClusterWorkloadResponse(rsp)
 }
 
 // UpdateClusterWorkloadWithBodyWithResponse request with arbitrary body returning *UpdateClusterWorkloadResponse
@@ -3327,6 +3514,32 @@ func ParseCreateClusterResponse(rsp *http.Response) (*CreateClusterResponse, err
 	return response, nil
 }
 
+// ParseGetClusterWorkloadsResponse parses an HTTP response from a GetClusterWorkloadsWithResponse call
+func ParseGetClusterWorkloadsResponse(rsp *http.Response) (*GetClusterWorkloadsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetClusterWorkloadsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []externalRef0.Workload
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseCreateClusterWorkloadResponse parses an HTTP response from a CreateClusterWorkloadWithResponse call
 func ParseCreateClusterWorkloadResponse(rsp *http.Response) (*CreateClusterWorkloadResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -3354,6 +3567,32 @@ func ParseDeleteClusterWorkloadResponse(rsp *http.Response) (*DeleteClusterWorkl
 	response := &DeleteClusterWorkloadResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetClusterWorkloadResponse parses an HTTP response from a GetClusterWorkloadWithResponse call
+func ParseGetClusterWorkloadResponse(rsp *http.Response) (*GetClusterWorkloadResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetClusterWorkloadResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest externalRef0.Workload
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	}
 
 	return response, nil
