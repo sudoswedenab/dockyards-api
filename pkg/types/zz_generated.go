@@ -7,20 +7,6 @@ import (
 	"time"
 )
 
-// Defines values for DeploymentType.
-const (
-	DeploymentTypeContainerImage DeploymentType = "container_image"
-	DeploymentTypeHelm           DeploymentType = "helm"
-	DeploymentTypeKustomize      DeploymentType = "kustomize"
-)
-
-// Defines values for DeploymentStatusHealth.
-const (
-	DeploymentStatusHealthError   DeploymentStatusHealth = "error"
-	DeploymentStatusHealthHealthy DeploymentStatusHealth = "healthy"
-	DeploymentStatusHealthWarning DeploymentStatusHealth = "warning"
-)
-
 // App defines model for app.
 type App struct {
 	AppSteps    *[]AppStep `json:"app_steps,omitempty"`
@@ -79,48 +65,11 @@ type Credential struct {
 	Organization       string             `json:"organization"`
 }
 
-// Deployment defines model for deployment.
-type Deployment struct {
-	ClusterID               string                  `json:"cluster_id"`
-	ContainerImage          *string                 `json:"container_image,omitempty"`
-	CredentialName          *string                 `json:"credential_name,omitempty"`
-	DeploymentTemplate      *string                 `json:"deployment_template,omitempty"`
-	DeploymentTemplateInput *map[string]interface{} `json:"deployment_template_input,omitempty"`
-	HelmChart               *string                 `json:"helm_chart,omitempty"`
-	HelmRepository          *string                 `json:"helm_repository,omitempty"`
-	HelmValues              *map[string]interface{} `json:"helm_values,omitempty"`
-	HelmVersion             *string                 `json:"helm_version,omitempty"`
-	ID                      string                  `json:"id"`
-	Kustomize               *map[string][]byte      `json:"kustomize,omitempty"`
-	Name                    *string                 `json:"name,omitempty"`
-	Namespace               *string                 `json:"namespace,omitempty"`
-	Port                    *int                    `json:"port,omitempty"`
-	Provenience             *string                 `json:"provenience,omitempty"`
-	Status                  *DeploymentStatus       `json:"status,omitempty"`
-	Type                    DeploymentType          `json:"type"`
-}
-
-// DeploymentType defines model for Deployment.Type.
-type DeploymentType string
-
 // DeploymentOverview defines model for deployment_overview.
 type DeploymentOverview struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
-
-// DeploymentStatus defines model for deployment_status.
-type DeploymentStatus struct {
-	CreatedAt    time.Time               `json:"created_at"`
-	DeploymentID string                  `json:"deployment_id"`
-	Health       *DeploymentStatusHealth `json:"health,omitempty"`
-	ID           string                  `json:"id"`
-	State        *string                 `json:"state,omitempty"`
-	Urls         *[]string               `json:"urls,omitempty"`
-}
-
-// DeploymentStatusHealth defines model for DeploymentStatus.Health.
-type DeploymentStatusHealth string
 
 // IPPool defines model for ip_pool.
 type IPPool struct {

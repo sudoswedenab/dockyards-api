@@ -21,9 +21,6 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
-// CreateDeploymentJSONRequestBody defines body for CreateDeployment for application/json ContentType.
-type CreateDeploymentJSONRequestBody = externalRef0.Deployment
-
 // CreateNodePoolJSONRequestBody defines body for CreateNodePool for application/json ContentType.
 type CreateNodePoolJSONRequestBody = externalRef0.NodePoolOptions
 
@@ -133,14 +130,6 @@ type ClientInterface interface {
 	// GetCluster request
 	GetCluster(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetDeployments request
-	GetDeployments(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CreateDeploymentWithBody request with any body
-	CreateDeploymentWithBody(ctx context.Context, clusterID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	CreateDeployment(ctx context.Context, clusterID string, body CreateDeploymentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// GetKubeconfig request
 	GetKubeconfig(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -151,12 +140,6 @@ type ClientInterface interface {
 
 	// GetCredentials request
 	GetCredentials(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// DeleteDeployment request
-	DeleteDeployment(ctx context.Context, deploymentID string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetDeployment request
-	GetDeployment(ctx context.Context, deploymentID string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// LoginWithBody request with any body
 	LoginWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -281,42 +264,6 @@ func (c *Client) GetCluster(ctx context.Context, clusterID string, reqEditors ..
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetDeployments(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetDeploymentsRequest(c.Server, clusterID)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateDeploymentWithBody(ctx context.Context, clusterID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateDeploymentRequestWithBody(c.Server, clusterID, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateDeployment(ctx context.Context, clusterID string, body CreateDeploymentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateDeploymentRequest(c.Server, clusterID, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) GetKubeconfig(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetKubeconfigRequest(c.Server, clusterID)
 	if err != nil {
@@ -355,30 +302,6 @@ func (c *Client) CreateNodePool(ctx context.Context, clusterID string, body Crea
 
 func (c *Client) GetCredentials(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetCredentialsRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) DeleteDeployment(ctx context.Context, deploymentID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteDeploymentRequest(c.Server, deploymentID)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetDeployment(ctx context.Context, deploymentID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetDeploymentRequest(c.Server, deploymentID)
 	if err != nil {
 		return nil, err
 	}
@@ -835,87 +758,6 @@ func NewGetClusterRequest(server string, clusterID string) (*http.Request, error
 	return req, nil
 }
 
-// NewGetDeploymentsRequest generates requests for GetDeployments
-func NewGetDeploymentsRequest(server string, clusterID string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "cluster_id", runtime.ParamLocationPath, clusterID)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/clusters/%s/deployments", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewCreateDeploymentRequest calls the generic CreateDeployment builder with application/json body
-func NewCreateDeploymentRequest(server string, clusterID string, body CreateDeploymentJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCreateDeploymentRequestWithBody(server, clusterID, "application/json", bodyReader)
-}
-
-// NewCreateDeploymentRequestWithBody generates requests for CreateDeployment with any type of body
-func NewCreateDeploymentRequestWithBody(server string, clusterID string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "cluster_id", runtime.ParamLocationPath, clusterID)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/clusters/%s/deployments", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 // NewGetKubeconfigRequest generates requests for GetKubeconfig
 func NewGetKubeconfigRequest(server string, clusterID string) (*http.Request, error) {
 	var err error
@@ -1007,74 +849,6 @@ func NewGetCredentialsRequest(server string) (*http.Request, error) {
 	}
 
 	operationPath := fmt.Sprintf("/v1/credentials")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewDeleteDeploymentRequest generates requests for DeleteDeployment
-func NewDeleteDeploymentRequest(server string, deploymentID string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "deployment_id", runtime.ParamLocationPath, deploymentID)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/deployments/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewGetDeploymentRequest generates requests for GetDeployment
-func NewGetDeploymentRequest(server string, deploymentID string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "deployment_id", runtime.ParamLocationPath, deploymentID)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/deployments/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1960,14 +1734,6 @@ type ClientWithResponsesInterface interface {
 	// GetClusterWithResponse request
 	GetClusterWithResponse(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*GetClusterResponse, error)
 
-	// GetDeploymentsWithResponse request
-	GetDeploymentsWithResponse(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*GetDeploymentsResponse, error)
-
-	// CreateDeploymentWithBodyWithResponse request with any body
-	CreateDeploymentWithBodyWithResponse(ctx context.Context, clusterID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDeploymentResponse, error)
-
-	CreateDeploymentWithResponse(ctx context.Context, clusterID string, body CreateDeploymentJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDeploymentResponse, error)
-
 	// GetKubeconfigWithResponse request
 	GetKubeconfigWithResponse(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*GetKubeconfigResponse, error)
 
@@ -1978,12 +1744,6 @@ type ClientWithResponsesInterface interface {
 
 	// GetCredentialsWithResponse request
 	GetCredentialsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetCredentialsResponse, error)
-
-	// DeleteDeploymentWithResponse request
-	DeleteDeploymentWithResponse(ctx context.Context, deploymentID string, reqEditors ...RequestEditorFn) (*DeleteDeploymentResponse, error)
-
-	// GetDeploymentWithResponse request
-	GetDeploymentWithResponse(ctx context.Context, deploymentID string, reqEditors ...RequestEditorFn) (*GetDeploymentResponse, error)
 
 	// LoginWithBodyWithResponse request with any body
 	LoginWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*LoginResponse, error)
@@ -2147,50 +1907,6 @@ func (r GetClusterResponse) StatusCode() int {
 	return 0
 }
 
-type GetDeploymentsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]externalRef0.Deployment
-}
-
-// Status returns HTTPResponse.Status
-func (r GetDeploymentsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetDeploymentsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type CreateDeploymentResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON201      *externalRef0.Deployment
-}
-
-// Status returns HTTPResponse.Status
-func (r CreateDeploymentResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CreateDeploymentResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type GetKubeconfigResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2251,49 +1967,6 @@ func (r GetCredentialsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetCredentialsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type DeleteDeploymentResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r DeleteDeploymentResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r DeleteDeploymentResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type GetDeploymentResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *externalRef0.Deployment
-}
-
-// Status returns HTTPResponse.Status
-func (r GetDeploymentResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetDeploymentResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2773,32 +2446,6 @@ func (c *ClientWithResponses) GetClusterWithResponse(ctx context.Context, cluste
 	return ParseGetClusterResponse(rsp)
 }
 
-// GetDeploymentsWithResponse request returning *GetDeploymentsResponse
-func (c *ClientWithResponses) GetDeploymentsWithResponse(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*GetDeploymentsResponse, error) {
-	rsp, err := c.GetDeployments(ctx, clusterID, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetDeploymentsResponse(rsp)
-}
-
-// CreateDeploymentWithBodyWithResponse request with arbitrary body returning *CreateDeploymentResponse
-func (c *ClientWithResponses) CreateDeploymentWithBodyWithResponse(ctx context.Context, clusterID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDeploymentResponse, error) {
-	rsp, err := c.CreateDeploymentWithBody(ctx, clusterID, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateDeploymentResponse(rsp)
-}
-
-func (c *ClientWithResponses) CreateDeploymentWithResponse(ctx context.Context, clusterID string, body CreateDeploymentJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDeploymentResponse, error) {
-	rsp, err := c.CreateDeployment(ctx, clusterID, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateDeploymentResponse(rsp)
-}
-
 // GetKubeconfigWithResponse request returning *GetKubeconfigResponse
 func (c *ClientWithResponses) GetKubeconfigWithResponse(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*GetKubeconfigResponse, error) {
 	rsp, err := c.GetKubeconfig(ctx, clusterID, reqEditors...)
@@ -2832,24 +2479,6 @@ func (c *ClientWithResponses) GetCredentialsWithResponse(ctx context.Context, re
 		return nil, err
 	}
 	return ParseGetCredentialsResponse(rsp)
-}
-
-// DeleteDeploymentWithResponse request returning *DeleteDeploymentResponse
-func (c *ClientWithResponses) DeleteDeploymentWithResponse(ctx context.Context, deploymentID string, reqEditors ...RequestEditorFn) (*DeleteDeploymentResponse, error) {
-	rsp, err := c.DeleteDeployment(ctx, deploymentID, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseDeleteDeploymentResponse(rsp)
-}
-
-// GetDeploymentWithResponse request returning *GetDeploymentResponse
-func (c *ClientWithResponses) GetDeploymentWithResponse(ctx context.Context, deploymentID string, reqEditors ...RequestEditorFn) (*GetDeploymentResponse, error) {
-	rsp, err := c.GetDeployment(ctx, deploymentID, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetDeploymentResponse(rsp)
 }
 
 // LoginWithBodyWithResponse request with arbitrary body returning *LoginResponse
@@ -3182,58 +2811,6 @@ func ParseGetClusterResponse(rsp *http.Response) (*GetClusterResponse, error) {
 	return response, nil
 }
 
-// ParseGetDeploymentsResponse parses an HTTP response from a GetDeploymentsWithResponse call
-func ParseGetDeploymentsResponse(rsp *http.Response) (*GetDeploymentsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetDeploymentsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []externalRef0.Deployment
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseCreateDeploymentResponse parses an HTTP response from a CreateDeploymentWithResponse call
-func ParseCreateDeploymentResponse(rsp *http.Response) (*CreateDeploymentResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CreateDeploymentResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
-		var dest externalRef0.Deployment
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON201 = &dest
-
-	}
-
-	return response, nil
-}
-
 // ParseGetKubeconfigResponse parses an HTTP response from a GetKubeconfigWithResponse call
 func ParseGetKubeconfigResponse(rsp *http.Response) (*GetKubeconfigResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -3302,48 +2879,6 @@ func ParseGetCredentialsResponse(rsp *http.Response) (*GetCredentialsResponse, e
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest []externalRef0.Credential
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseDeleteDeploymentResponse parses an HTTP response from a DeleteDeploymentWithResponse call
-func ParseDeleteDeploymentResponse(rsp *http.Response) (*DeleteDeploymentResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &DeleteDeploymentResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseGetDeploymentResponse parses an HTTP response from a GetDeploymentWithResponse call
-func ParseGetDeploymentResponse(rsp *http.Response) (*GetDeploymentResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetDeploymentResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest externalRef0.Deployment
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

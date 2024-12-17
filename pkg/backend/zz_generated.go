@@ -18,9 +18,6 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
-// CreateDeploymentJSONRequestBody defines body for CreateDeployment for application/json ContentType.
-type CreateDeploymentJSONRequestBody = externalRef0.Deployment
-
 // CreateNodePoolJSONRequestBody defines body for CreateNodePool for application/json ContentType.
 type CreateNodePoolJSONRequestBody = externalRef0.NodePoolOptions
 
@@ -60,12 +57,6 @@ type ServerInterface interface {
 	// (GET /v1/clusters/{cluster_id})
 	GetCluster(w http.ResponseWriter, r *http.Request, clusterID string)
 
-	// (GET /v1/clusters/{cluster_id}/deployments)
-	GetDeployments(w http.ResponseWriter, r *http.Request, clusterID string)
-
-	// (POST /v1/clusters/{cluster_id}/deployments)
-	CreateDeployment(w http.ResponseWriter, r *http.Request, clusterID string)
-
 	// (GET /v1/clusters/{cluster_id}/kubeconfig)
 	GetKubeconfig(w http.ResponseWriter, r *http.Request, clusterID string)
 
@@ -74,12 +65,6 @@ type ServerInterface interface {
 
 	// (GET /v1/credentials)
 	GetCredentials(w http.ResponseWriter, r *http.Request)
-
-	// (DELETE /v1/deployments/{deployment_id})
-	DeleteDeployment(w http.ResponseWriter, r *http.Request, deploymentID string)
-
-	// (GET /v1/deployments/{deployment_id})
-	GetDeployment(w http.ResponseWriter, r *http.Request, deploymentID string)
 
 	// (POST /v1/login)
 	Login(w http.ResponseWriter, r *http.Request)
@@ -241,62 +226,6 @@ func (siw *ServerInterfaceWrapper) GetCluster(w http.ResponseWriter, r *http.Req
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// GetDeployments operation middleware
-func (siw *ServerInterfaceWrapper) GetDeployments(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "cluster_id" -------------
-	var clusterID string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "cluster_id", r.PathValue("cluster_id"), &clusterID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "cluster_id", Err: err})
-		return
-	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetDeployments(w, r, clusterID)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// CreateDeployment operation middleware
-func (siw *ServerInterfaceWrapper) CreateDeployment(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "cluster_id" -------------
-	var clusterID string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "cluster_id", r.PathValue("cluster_id"), &clusterID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "cluster_id", Err: err})
-		return
-	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateDeployment(w, r, clusterID)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
 // GetKubeconfig operation middleware
 func (siw *ServerInterfaceWrapper) GetKubeconfig(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -361,62 +290,6 @@ func (siw *ServerInterfaceWrapper) GetCredentials(w http.ResponseWriter, r *http
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetCredentials(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// DeleteDeployment operation middleware
-func (siw *ServerInterfaceWrapper) DeleteDeployment(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "deployment_id" -------------
-	var deploymentID string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "deployment_id", r.PathValue("deployment_id"), &deploymentID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "deployment_id", Err: err})
-		return
-	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteDeployment(w, r, deploymentID)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// GetDeployment operation middleware
-func (siw *ServerInterfaceWrapper) GetDeployment(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "deployment_id" -------------
-	var deploymentID string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "deployment_id", r.PathValue("deployment_id"), &deploymentID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "deployment_id", Err: err})
-		return
-	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetDeployment(w, r, deploymentID)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1144,13 +1017,9 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("GET "+options.BaseURL+"/v1/clusters", wrapper.GetClusters)
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/clusters/{cluster_id}", wrapper.DeleteCluster)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/clusters/{cluster_id}", wrapper.GetCluster)
-	m.HandleFunc("GET "+options.BaseURL+"/v1/clusters/{cluster_id}/deployments", wrapper.GetDeployments)
-	m.HandleFunc("POST "+options.BaseURL+"/v1/clusters/{cluster_id}/deployments", wrapper.CreateDeployment)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/clusters/{cluster_id}/kubeconfig", wrapper.GetKubeconfig)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/clusters/{cluster_id}/node-pools", wrapper.CreateNodePool)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/credentials", wrapper.GetCredentials)
-	m.HandleFunc("DELETE "+options.BaseURL+"/v1/deployments/{deployment_id}", wrapper.DeleteDeployment)
-	m.HandleFunc("GET "+options.BaseURL+"/v1/deployments/{deployment_id}", wrapper.GetDeployment)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/login", wrapper.Login)
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/node-pools/{node_pool_id}", wrapper.DeleteNodePool)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/node-pools/{node_pool_id}", wrapper.GetNodePool)

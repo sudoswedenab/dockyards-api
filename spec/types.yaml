@@ -112,53 +112,6 @@ components:
       required:
       - email
       - password
-    deployment:
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        cluster_id:
-          type: string
-        namespace:
-          type: string
-        container_image:
-          type: string
-        helm_chart:
-          type: string
-        helm_repository:
-          type: string
-        helm_version:
-          type: string
-        helm_values:
-          type: object
-        credential_name:
-          type: string
-        port:
-          type: integer
-        status:
-          $ref: '#/components/schemas/deployment_status'
-        kustomize:
-          type: object
-          additionalProperties:
-            type: string
-            format: byte
-        type:
-          type: string
-          enum:
-          - container_image
-          - helm
-          - kustomize
-        provenience:
-          type: string
-        deployment_template:
-          type: string
-        deployment_template_input:
-          type: object
-      required:
-      - id
-      - cluster_id
-      - type
     node_pool:
       properties:
         id:
@@ -370,31 +323,6 @@ components:
           type: array
           items:
             type: string
-    deployment_status:
-      properties:
-        id:
-          type: string
-        deployment_id:
-          type: string
-        urls:
-          type: array
-          items:
-            type: string
-        state:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-        health:
-          type: string
-          enum:
-          - error
-          - warning
-          - healthy
-      required:
-      - id
-      - deployment_id
-      - created_at
     node:
       properties:
         id:
