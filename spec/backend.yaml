@@ -482,6 +482,7 @@ paths:
                 $ref: 'types.yaml#/components/schemas/user'
   /v1/clusters/{cluster_id}/node-pools:
     post:
+      deprecated: true
       operationId: createNodePool
       parameters:
       - name: cluster_id
