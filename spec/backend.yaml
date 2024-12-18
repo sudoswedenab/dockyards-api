@@ -148,6 +148,41 @@ paths:
                   $ref: 'types.yaml#/components/schemas/ip_pool'
         401: {}
         500: {}
+  /v1/orgs/{organization_name}/clusters/{cluster_name}/node-pools:
+    post:
+      operationId: createClusterNodePool
+      parameters:
+      - name: organization_name
+        required: true
+        in: path
+        schema:
+          type: string
+      - name: cluster_name
+        required: true
+        in: path
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/node_pool_options'
+      respenses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/node_pool'
+        400: {}
+        401: {}
+        409: {}
+        422:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/unprocessable_entity_errors'
+        500: {}
   /v1/orgs/{organization_name}/clusters/{cluster_name}/workloads:
     post:
       operationId: createClusterWorkload
