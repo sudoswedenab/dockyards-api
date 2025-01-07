@@ -162,6 +162,9 @@ type ClientInterface interface {
 
 	CreateCluster(ctx context.Context, organizationName string, body CreateClusterJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListClusterNodePools request
+	ListClusterNodePools(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateClusterNodePoolWithBody request with any body
 	CreateClusterNodePoolWithBody(ctx context.Context, organizationName string, clusterName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -394,6 +397,18 @@ func (c *Client) CreateClusterWithBody(ctx context.Context, organizationName str
 
 func (c *Client) CreateCluster(ctx context.Context, organizationName string, body CreateClusterJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateClusterRequest(c.Server, organizationName, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListClusterNodePools(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListClusterNodePoolsRequest(c.Server, organizationName, clusterName)
 	if err != nil {
 		return nil, err
 	}
@@ -1055,6 +1070,47 @@ func NewCreateClusterRequestWithBody(server string, organizationName string, con
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListClusterNodePoolsRequest generates requests for ListClusterNodePools
+func NewListClusterNodePoolsRequest(server string, organizationName string, clusterName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "cluster_name", runtime.ParamLocationPath, clusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/orgs/%s/clusters/%s/node-pools", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -1877,6 +1933,9 @@ type ClientWithResponsesInterface interface {
 
 	CreateClusterWithResponse(ctx context.Context, organizationName string, body CreateClusterJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateClusterResponse, error)
 
+	// ListClusterNodePoolsWithResponse request
+	ListClusterNodePoolsWithResponse(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*ListClusterNodePoolsResponse, error)
+
 	// CreateClusterNodePoolWithBodyWithResponse request with any body
 	CreateClusterNodePoolWithBodyWithResponse(ctx context.Context, organizationName string, clusterName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterNodePoolResponse, error)
 
@@ -2176,6 +2235,27 @@ func (r CreateClusterResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateClusterResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListClusterNodePoolsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r ListClusterNodePoolsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListClusterNodePoolsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2681,6 +2761,15 @@ func (c *ClientWithResponses) CreateClusterWithResponse(ctx context.Context, org
 	return ParseCreateClusterResponse(rsp)
 }
 
+// ListClusterNodePoolsWithResponse request returning *ListClusterNodePoolsResponse
+func (c *ClientWithResponses) ListClusterNodePoolsWithResponse(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*ListClusterNodePoolsResponse, error) {
+	rsp, err := c.ListClusterNodePools(ctx, organizationName, clusterName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListClusterNodePoolsResponse(rsp)
+}
+
 // CreateClusterNodePoolWithBodyWithResponse request with arbitrary body returning *CreateClusterNodePoolResponse
 func (c *ClientWithResponses) CreateClusterNodePoolWithBodyWithResponse(ctx context.Context, organizationName string, clusterName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterNodePoolResponse, error) {
 	rsp, err := c.CreateClusterNodePoolWithBody(ctx, organizationName, clusterName, contentType, body, reqEditors...)
@@ -3159,6 +3248,22 @@ func ParseCreateClusterResponse(rsp *http.Response) (*CreateClusterResponse, err
 		}
 		response.JSON422 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseListClusterNodePoolsResponse parses an HTTP response from a ListClusterNodePoolsWithResponse call
+func ParseListClusterNodePoolsResponse(rsp *http.Response) (*ListClusterNodePoolsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListClusterNodePoolsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil

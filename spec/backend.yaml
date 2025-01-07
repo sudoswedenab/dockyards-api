@@ -149,6 +149,30 @@ paths:
         401: {}
         500: {}
   /v1/orgs/{organization_name}/clusters/{cluster_name}/node-pools:
+    get:
+      operationId: listClusterNodePools
+      parameters:
+      - name: organization_name
+        required: true
+        in: path
+        schema:
+          type: string
+      - name: cluster_name
+        required: true
+        in: path
+        schema:
+          type: string
+      respenses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'types.yaml#/components/schemas/node_pool'
+        400: {}
+        401: {}
+        500: {}
     post:
       operationId: createClusterNodePool
       parameters:
