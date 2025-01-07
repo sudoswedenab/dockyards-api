@@ -98,7 +98,7 @@ type NodePool struct {
 	ControlPlaneComponentsOnly *bool              `json:"control_plane_components_only,omitempty"`
 	CPUCount                   *int               `json:"cpu_count,omitempty"`
 	CreatedAt                  *time.Time         `json:"created_at,omitempty"`
-	DeletedAt                  *string            `json:"deleted_at,omitempty"`
+	DeletedAt                  *time.Time         `json:"deleted_at,omitempty"`
 	DiskSize                   *string            `json:"disk_size,omitempty"`
 	ID                         string             `json:"id"`
 	LoadBalancer               *bool              `json:"load_balancer,omitempty"`

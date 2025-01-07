@@ -150,7 +150,7 @@ components:
           format: date-time
         deleted_at:
           type: string
-          format: data-time
+          format: date-time
       required:
       - id
       - name
