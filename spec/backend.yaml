@@ -183,6 +183,34 @@ paths:
               schema:
                 $ref: 'types.yaml#/components/schemas/unprocessable_entity_errors'
         500: {}
+  /v1/orgs/{organization_name}/clusters/{cluster_name}/node-pools/{node_pool_name}:
+    get:
+      operationId: getClusterNodePool
+      parameters:
+      - name: organization_name
+        required: true
+        in: path
+        schema:
+          type: string
+      - name: cluster_name
+        required: true
+        in: path
+        schema:
+          type: string
+      - name: node_pool_name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/node_pool'
+        400: {}
+        401: {}
+        500: {}
   /v1/orgs/{organization_name}/clusters/{cluster_name}/workloads:
     post:
       operationId: createClusterWorkload
@@ -506,22 +534,6 @@ paths:
         409: {}
         500: {}
   /v1/node-pools/{node_pool_id}:
-    get:
-      operationId: getNodePool
-      parameters:
-      - name: node_pool_id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: 'types.yaml#/components/schemas/node_pool'
-        401: {}
-        500: {}
     delete:
       operationId: deleteNodePool
       parameters:
