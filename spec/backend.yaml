@@ -211,6 +211,29 @@ paths:
         400: {}
         401: {}
         500: {}
+    delete:
+      operationId: deleteClusterNodePool
+      parameters:
+      - name: organization_name
+        required: true
+        in: path
+        schema:
+          type: string
+      - name: cluster_name
+        required: true
+        in: path
+        schema:
+          type: string
+      - name: node_pool_name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        202: {}
+        400: {}
+        401: {}
+        500: {}
   /v1/orgs/{organization_name}/clusters/{cluster_name}/workloads:
     post:
       operationId: createClusterWorkload
@@ -534,18 +557,6 @@ paths:
         409: {}
         500: {}
   /v1/node-pools/{node_pool_id}:
-    delete:
-      operationId: deleteNodePool
-      parameters:
-      - name: node_pool_id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        204: {}
-        401: {}
-        500: {}
     patch:
       operationId: updateNodePool
       parameters:

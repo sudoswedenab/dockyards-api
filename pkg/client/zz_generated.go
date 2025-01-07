@@ -149,9 +149,6 @@ type ClientInterface interface {
 
 	Login(ctx context.Context, body LoginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteNodePool request
-	DeleteNodePool(ctx context.Context, nodePoolID string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// UpdateNodePoolWithBody request with any body
 	UpdateNodePoolWithBody(ctx context.Context, nodePoolID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -169,6 +166,9 @@ type ClientInterface interface {
 	CreateClusterNodePoolWithBody(ctx context.Context, organizationName string, clusterName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateClusterNodePool(ctx context.Context, organizationName string, clusterName string, body CreateClusterNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteClusterNodePool request
+	DeleteClusterNodePool(ctx context.Context, organizationName string, clusterName string, nodePoolName string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetClusterNodePool request
 	GetClusterNodePool(ctx context.Context, organizationName string, clusterName string, nodePoolName string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -344,18 +344,6 @@ func (c *Client) Login(ctx context.Context, body LoginJSONRequestBody, reqEditor
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeleteNodePool(ctx context.Context, nodePoolID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteNodePoolRequest(c.Server, nodePoolID)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) UpdateNodePoolWithBody(ctx context.Context, nodePoolID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateNodePoolRequestWithBody(c.Server, nodePoolID, contentType, body)
 	if err != nil {
@@ -430,6 +418,18 @@ func (c *Client) CreateClusterNodePoolWithBody(ctx context.Context, organization
 
 func (c *Client) CreateClusterNodePool(ctx context.Context, organizationName string, clusterName string, body CreateClusterNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateClusterNodePoolRequest(c.Server, organizationName, clusterName, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteClusterNodePool(ctx context.Context, organizationName string, clusterName string, nodePoolName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteClusterNodePoolRequest(c.Server, organizationName, clusterName, nodePoolName)
 	if err != nil {
 		return nil, err
 	}
@@ -938,40 +938,6 @@ func NewLoginRequestWithBody(server string, contentType string, body io.Reader) 
 	return req, nil
 }
 
-// NewDeleteNodePoolRequest generates requests for DeleteNodePool
-func NewDeleteNodePoolRequest(server string, nodePoolID string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "node_pool_id", runtime.ParamLocationPath, nodePoolID)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/node-pools/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
 // NewUpdateNodePoolRequest calls the generic UpdateNodePool builder with application/json body
 func NewUpdateNodePoolRequest(server string, nodePoolID string, body UpdateNodePoolJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1143,6 +1109,54 @@ func NewCreateClusterNodePoolRequestWithBody(server string, organizationName str
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteClusterNodePoolRequest generates requests for DeleteClusterNodePool
+func NewDeleteClusterNodePoolRequest(server string, organizationName string, clusterName string, nodePoolName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "cluster_name", runtime.ParamLocationPath, clusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "node_pool_name", runtime.ParamLocationPath, nodePoolName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/orgs/%s/clusters/%s/node-pools/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -1850,9 +1864,6 @@ type ClientWithResponsesInterface interface {
 
 	LoginWithResponse(ctx context.Context, body LoginJSONRequestBody, reqEditors ...RequestEditorFn) (*LoginResponse, error)
 
-	// DeleteNodePoolWithResponse request
-	DeleteNodePoolWithResponse(ctx context.Context, nodePoolID string, reqEditors ...RequestEditorFn) (*DeleteNodePoolResponse, error)
-
 	// UpdateNodePoolWithBodyWithResponse request with any body
 	UpdateNodePoolWithBodyWithResponse(ctx context.Context, nodePoolID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateNodePoolResponse, error)
 
@@ -1870,6 +1881,9 @@ type ClientWithResponsesInterface interface {
 	CreateClusterNodePoolWithBodyWithResponse(ctx context.Context, organizationName string, clusterName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterNodePoolResponse, error)
 
 	CreateClusterNodePoolWithResponse(ctx context.Context, organizationName string, clusterName string, body CreateClusterNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateClusterNodePoolResponse, error)
+
+	// DeleteClusterNodePoolWithResponse request
+	DeleteClusterNodePoolWithResponse(ctx context.Context, organizationName string, clusterName string, nodePoolName string, reqEditors ...RequestEditorFn) (*DeleteClusterNodePoolResponse, error)
 
 	// GetClusterNodePoolWithResponse request
 	GetClusterNodePoolWithResponse(ctx context.Context, organizationName string, clusterName string, nodePoolName string, reqEditors ...RequestEditorFn) (*GetClusterNodePoolResponse, error)
@@ -2101,27 +2115,6 @@ func (r LoginResponse) StatusCode() int {
 	return 0
 }
 
-type DeleteNodePoolResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r DeleteNodePoolResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r DeleteNodePoolResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type UpdateNodePoolResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2204,6 +2197,27 @@ func (r CreateClusterNodePoolResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateClusterNodePoolResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteClusterNodePoolResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteClusterNodePoolResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteClusterNodePoolResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2624,15 +2638,6 @@ func (c *ClientWithResponses) LoginWithResponse(ctx context.Context, body LoginJ
 	return ParseLoginResponse(rsp)
 }
 
-// DeleteNodePoolWithResponse request returning *DeleteNodePoolResponse
-func (c *ClientWithResponses) DeleteNodePoolWithResponse(ctx context.Context, nodePoolID string, reqEditors ...RequestEditorFn) (*DeleteNodePoolResponse, error) {
-	rsp, err := c.DeleteNodePool(ctx, nodePoolID, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseDeleteNodePoolResponse(rsp)
-}
-
 // UpdateNodePoolWithBodyWithResponse request with arbitrary body returning *UpdateNodePoolResponse
 func (c *ClientWithResponses) UpdateNodePoolWithBodyWithResponse(ctx context.Context, nodePoolID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateNodePoolResponse, error) {
 	rsp, err := c.UpdateNodePoolWithBody(ctx, nodePoolID, contentType, body, reqEditors...)
@@ -2691,6 +2696,15 @@ func (c *ClientWithResponses) CreateClusterNodePoolWithResponse(ctx context.Cont
 		return nil, err
 	}
 	return ParseCreateClusterNodePoolResponse(rsp)
+}
+
+// DeleteClusterNodePoolWithResponse request returning *DeleteClusterNodePoolResponse
+func (c *ClientWithResponses) DeleteClusterNodePoolWithResponse(ctx context.Context, organizationName string, clusterName string, nodePoolName string, reqEditors ...RequestEditorFn) (*DeleteClusterNodePoolResponse, error) {
+	rsp, err := c.DeleteClusterNodePool(ctx, organizationName, clusterName, nodePoolName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteClusterNodePoolResponse(rsp)
 }
 
 // GetClusterNodePoolWithResponse request returning *GetClusterNodePoolResponse
@@ -3065,22 +3079,6 @@ func ParseLoginResponse(rsp *http.Response) (*LoginResponse, error) {
 	return response, nil
 }
 
-// ParseDeleteNodePoolResponse parses an HTTP response from a DeleteNodePoolWithResponse call
-func ParseDeleteNodePoolResponse(rsp *http.Response) (*DeleteNodePoolResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &DeleteNodePoolResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
 // ParseUpdateNodePoolResponse parses an HTTP response from a UpdateNodePoolWithResponse call
 func ParseUpdateNodePoolResponse(rsp *http.Response) (*UpdateNodePoolResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -3175,6 +3173,22 @@ func ParseCreateClusterNodePoolResponse(rsp *http.Response) (*CreateClusterNodeP
 	}
 
 	response := &CreateClusterNodePoolResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseDeleteClusterNodePoolResponse parses an HTTP response from a DeleteClusterNodePoolWithResponse call
+func ParseDeleteClusterNodePoolResponse(rsp *http.Response) (*DeleteClusterNodePoolResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteClusterNodePoolResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
