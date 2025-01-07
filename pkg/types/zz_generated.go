@@ -93,18 +93,21 @@ type Node struct {
 
 // NodePool defines model for node_pool.
 type NodePool struct {
-	ClusterID                  string             `json:"cluster_id"`
+	ClusterID                  *string            `json:"cluster_id,omitempty"`
 	ControlPlane               *bool              `json:"control_plane,omitempty"`
 	ControlPlaneComponentsOnly *bool              `json:"control_plane_components_only,omitempty"`
-	CPUCount                   int                `json:"cpu_count"`
-	DiskSize                   string             `json:"disk_size"`
+	CPUCount                   *int               `json:"cpu_count,omitempty"`
+	CreatedAt                  *time.Time         `json:"created_at,omitempty"`
+	DeletedAt                  *string            `json:"deleted_at,omitempty"`
+	DiskSize                   *string            `json:"disk_size,omitempty"`
 	ID                         string             `json:"id"`
 	LoadBalancer               *bool              `json:"load_balancer,omitempty"`
 	Name                       string             `json:"name"`
-	Nodes                      []Node             `json:"nodes"`
-	Quantity                   int                `json:"quantity"`
-	RAMSize                    string             `json:"ram_size"`
+	Nodes                      *[]Node            `json:"nodes,omitempty"`
+	Quantity                   *int               `json:"quantity,omitempty"`
+	RAMSize                    *string            `json:"ram_size,omitempty"`
 	StorageResources           *[]StorageResource `json:"storage_resources,omitempty"`
+	UpdatedAt                  *time.Time         `json:"updated_at,omitempty"`
 }
 
 // NodePoolOptions defines model for node_pool_options.

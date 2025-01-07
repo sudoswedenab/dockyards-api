@@ -142,15 +142,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/storage_resource'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: data-time
       required:
       - id
-      - cluster_id
       - name
-      - quantity
-      - cpu_count
-      - ram_size
-      - disk_size
-      - nodes
     node_pool_options:
       properties:
         name:
