@@ -27,14 +27,14 @@ type CreateNodePoolJSONRequestBody = externalRef0.NodePoolOptions
 // LoginJSONRequestBody defines body for Login for application/json ContentType.
 type LoginJSONRequestBody = externalRef0.Login
 
-// UpdateNodePoolJSONRequestBody defines body for UpdateNodePool for application/json ContentType.
-type UpdateNodePoolJSONRequestBody = externalRef0.NodePoolOptions
-
 // CreateClusterJSONRequestBody defines body for CreateCluster for application/json ContentType.
 type CreateClusterJSONRequestBody = externalRef0.ClusterOptions
 
 // CreateClusterNodePoolJSONRequestBody defines body for CreateClusterNodePool for application/json ContentType.
 type CreateClusterNodePoolJSONRequestBody = externalRef0.NodePoolOptions
+
+// UpdateClusterNodePoolJSONRequestBody defines body for UpdateClusterNodePool for application/json ContentType.
+type UpdateClusterNodePoolJSONRequestBody = externalRef0.NodePoolOptions
 
 // CreateClusterWorkloadJSONRequestBody defines body for CreateClusterWorkload for application/json ContentType.
 type CreateClusterWorkloadJSONRequestBody = externalRef0.Workload
@@ -149,11 +149,6 @@ type ClientInterface interface {
 
 	Login(ctx context.Context, body LoginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// UpdateNodePoolWithBody request with any body
-	UpdateNodePoolWithBody(ctx context.Context, nodePoolID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	UpdateNodePool(ctx context.Context, nodePoolID string, body UpdateNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// GetOrganizations request
 	GetOrganizations(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -175,6 +170,11 @@ type ClientInterface interface {
 
 	// GetClusterNodePool request
 	GetClusterNodePool(ctx context.Context, organizationName string, clusterName string, nodePoolName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateClusterNodePoolWithBody request with any body
+	UpdateClusterNodePoolWithBody(ctx context.Context, organizationName string, clusterName string, nodePoolName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateClusterNodePool(ctx context.Context, organizationName string, clusterName string, nodePoolName string, body UpdateClusterNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetClusterWorkloads request
 	GetClusterWorkloads(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -347,30 +347,6 @@ func (c *Client) Login(ctx context.Context, body LoginJSONRequestBody, reqEditor
 	return c.Client.Do(req)
 }
 
-func (c *Client) UpdateNodePoolWithBody(ctx context.Context, nodePoolID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateNodePoolRequestWithBody(c.Server, nodePoolID, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) UpdateNodePool(ctx context.Context, nodePoolID string, body UpdateNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateNodePoolRequest(c.Server, nodePoolID, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) GetOrganizations(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetOrganizationsRequest(c.Server)
 	if err != nil {
@@ -457,6 +433,30 @@ func (c *Client) DeleteClusterNodePool(ctx context.Context, organizationName str
 
 func (c *Client) GetClusterNodePool(ctx context.Context, organizationName string, clusterName string, nodePoolName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetClusterNodePoolRequest(c.Server, organizationName, clusterName, nodePoolName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateClusterNodePoolWithBody(ctx context.Context, organizationName string, clusterName string, nodePoolName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateClusterNodePoolRequestWithBody(c.Server, organizationName, clusterName, nodePoolName, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateClusterNodePool(ctx context.Context, organizationName string, clusterName string, nodePoolName string, body UpdateClusterNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateClusterNodePoolRequest(c.Server, organizationName, clusterName, nodePoolName, body)
 	if err != nil {
 		return nil, err
 	}
@@ -953,53 +953,6 @@ func NewLoginRequestWithBody(server string, contentType string, body io.Reader) 
 	return req, nil
 }
 
-// NewUpdateNodePoolRequest calls the generic UpdateNodePool builder with application/json body
-func NewUpdateNodePoolRequest(server string, nodePoolID string, body UpdateNodePoolJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewUpdateNodePoolRequestWithBody(server, nodePoolID, "application/json", bodyReader)
-}
-
-// NewUpdateNodePoolRequestWithBody generates requests for UpdateNodePool with any type of body
-func NewUpdateNodePoolRequestWithBody(server string, nodePoolID string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "node_pool_id", runtime.ParamLocationPath, nodePoolID)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/node-pools/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("PATCH", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 // NewGetOrganizationsRequest generates requests for GetOrganizations
 func NewGetOrganizationsRequest(server string) (*http.Request, error) {
 	var err error
@@ -1261,6 +1214,67 @@ func NewGetClusterNodePoolRequest(server string, organizationName string, cluste
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewUpdateClusterNodePoolRequest calls the generic UpdateClusterNodePool builder with application/json body
+func NewUpdateClusterNodePoolRequest(server string, organizationName string, clusterName string, nodePoolName string, body UpdateClusterNodePoolJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateClusterNodePoolRequestWithBody(server, organizationName, clusterName, nodePoolName, "application/json", bodyReader)
+}
+
+// NewUpdateClusterNodePoolRequestWithBody generates requests for UpdateClusterNodePool with any type of body
+func NewUpdateClusterNodePoolRequestWithBody(server string, organizationName string, clusterName string, nodePoolName string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "cluster_name", runtime.ParamLocationPath, clusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "node_pool_name", runtime.ParamLocationPath, nodePoolName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/orgs/%s/clusters/%s/node-pools/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -1920,11 +1934,6 @@ type ClientWithResponsesInterface interface {
 
 	LoginWithResponse(ctx context.Context, body LoginJSONRequestBody, reqEditors ...RequestEditorFn) (*LoginResponse, error)
 
-	// UpdateNodePoolWithBodyWithResponse request with any body
-	UpdateNodePoolWithBodyWithResponse(ctx context.Context, nodePoolID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateNodePoolResponse, error)
-
-	UpdateNodePoolWithResponse(ctx context.Context, nodePoolID string, body UpdateNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateNodePoolResponse, error)
-
 	// GetOrganizationsWithResponse request
 	GetOrganizationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetOrganizationsResponse, error)
 
@@ -1946,6 +1955,11 @@ type ClientWithResponsesInterface interface {
 
 	// GetClusterNodePoolWithResponse request
 	GetClusterNodePoolWithResponse(ctx context.Context, organizationName string, clusterName string, nodePoolName string, reqEditors ...RequestEditorFn) (*GetClusterNodePoolResponse, error)
+
+	// UpdateClusterNodePoolWithBodyWithResponse request with any body
+	UpdateClusterNodePoolWithBodyWithResponse(ctx context.Context, organizationName string, clusterName string, nodePoolName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateClusterNodePoolResponse, error)
+
+	UpdateClusterNodePoolWithResponse(ctx context.Context, organizationName string, clusterName string, nodePoolName string, body UpdateClusterNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateClusterNodePoolResponse, error)
 
 	// GetClusterWorkloadsWithResponse request
 	GetClusterWorkloadsWithResponse(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*GetClusterWorkloadsResponse, error)
@@ -2174,28 +2188,6 @@ func (r LoginResponse) StatusCode() int {
 	return 0
 }
 
-type UpdateNodePoolResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON202      *externalRef0.NodePool
-}
-
-// Status returns HTTPResponse.Status
-func (r UpdateNodePoolResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r UpdateNodePoolResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type GetOrganizationsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2320,6 +2312,27 @@ func (r GetClusterNodePoolResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetClusterNodePoolResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateClusterNodePoolResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateClusterNodePoolResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateClusterNodePoolResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2718,23 +2731,6 @@ func (c *ClientWithResponses) LoginWithResponse(ctx context.Context, body LoginJ
 	return ParseLoginResponse(rsp)
 }
 
-// UpdateNodePoolWithBodyWithResponse request with arbitrary body returning *UpdateNodePoolResponse
-func (c *ClientWithResponses) UpdateNodePoolWithBodyWithResponse(ctx context.Context, nodePoolID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateNodePoolResponse, error) {
-	rsp, err := c.UpdateNodePoolWithBody(ctx, nodePoolID, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseUpdateNodePoolResponse(rsp)
-}
-
-func (c *ClientWithResponses) UpdateNodePoolWithResponse(ctx context.Context, nodePoolID string, body UpdateNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateNodePoolResponse, error) {
-	rsp, err := c.UpdateNodePool(ctx, nodePoolID, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseUpdateNodePoolResponse(rsp)
-}
-
 // GetOrganizationsWithResponse request returning *GetOrganizationsResponse
 func (c *ClientWithResponses) GetOrganizationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetOrganizationsResponse, error) {
 	rsp, err := c.GetOrganizations(ctx, reqEditors...)
@@ -2803,6 +2799,23 @@ func (c *ClientWithResponses) GetClusterNodePoolWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseGetClusterNodePoolResponse(rsp)
+}
+
+// UpdateClusterNodePoolWithBodyWithResponse request with arbitrary body returning *UpdateClusterNodePoolResponse
+func (c *ClientWithResponses) UpdateClusterNodePoolWithBodyWithResponse(ctx context.Context, organizationName string, clusterName string, nodePoolName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateClusterNodePoolResponse, error) {
+	rsp, err := c.UpdateClusterNodePoolWithBody(ctx, organizationName, clusterName, nodePoolName, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateClusterNodePoolResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateClusterNodePoolWithResponse(ctx context.Context, organizationName string, clusterName string, nodePoolName string, body UpdateClusterNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateClusterNodePoolResponse, error) {
+	rsp, err := c.UpdateClusterNodePool(ctx, organizationName, clusterName, nodePoolName, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateClusterNodePoolResponse(rsp)
 }
 
 // GetClusterWorkloadsWithResponse request returning *GetClusterWorkloadsResponse
@@ -3168,32 +3181,6 @@ func ParseLoginResponse(rsp *http.Response) (*LoginResponse, error) {
 	return response, nil
 }
 
-// ParseUpdateNodePoolResponse parses an HTTP response from a UpdateNodePoolWithResponse call
-func ParseUpdateNodePoolResponse(rsp *http.Response) (*UpdateNodePoolResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &UpdateNodePoolResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
-		var dest externalRef0.NodePool
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON202 = &dest
-
-	}
-
-	return response, nil
-}
-
 // ParseGetOrganizationsResponse parses an HTTP response from a GetOrganizationsWithResponse call
 func ParseGetOrganizationsResponse(rsp *http.Response) (*GetOrganizationsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -3322,6 +3309,22 @@ func ParseGetClusterNodePoolResponse(rsp *http.Response) (*GetClusterNodePoolRes
 		}
 		response.JSON200 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseUpdateClusterNodePoolResponse parses an HTTP response from a UpdateClusterNodePoolWithResponse call
+func ParseUpdateClusterNodePoolResponse(rsp *http.Response) (*UpdateClusterNodePoolResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateClusterNodePoolResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
