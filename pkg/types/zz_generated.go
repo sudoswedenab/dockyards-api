@@ -131,12 +131,14 @@ type Options struct {
 
 // Organization defines model for organization.
 type Organization struct {
-	CreatedAt   time.Time `json:"created_at"`
-	DisplayName *string   `json:"display_name,omitempty"`
-	Duration    *string   `json:"duration,omitempty"`
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	Condition   *string    `json:"condition,omitempty"`
+	CreatedAt   time.Time  `json:"created_at"`
+	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
+	DisplayName *string    `json:"display_name,omitempty"`
+	Duration    *string    `json:"duration,omitempty"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
 }
 
 // OrganizationOverview defines model for organization_overview.
