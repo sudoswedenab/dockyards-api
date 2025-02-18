@@ -71,6 +71,13 @@ type DeploymentOverview struct {
 	Name string `json:"name"`
 }
 
+// IdentityProvider defines model for identity_provider.
+type IdentityProvider struct {
+	DisplayName *string `json:"display_name,omitempty"`
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+}
+
 // IPPool defines model for ip_pool.
 type IPPool struct {
 	Addresses *[]string `json:"addresses,omitempty"`

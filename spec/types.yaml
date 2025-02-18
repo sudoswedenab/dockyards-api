@@ -385,3 +385,14 @@ components:
           type: array
           items:
             type: string
+    identity_provider:
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+      required:
+      - id
+      - name
