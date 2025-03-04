@@ -396,3 +396,9 @@ components:
       required:
       - id
       - name
+    organization_options:
+      properties:
+        display_name:
+          type: string
+        duration:
+          type: string

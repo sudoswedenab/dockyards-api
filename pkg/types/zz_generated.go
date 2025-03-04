@@ -148,6 +148,12 @@ type Organization struct {
 	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
 }
 
+// OrganizationOptions defines model for organization_options.
+type OrganizationOptions struct {
+	DisplayName *string `json:"display_name,omitempty"`
+	Duration    *string `json:"duration,omitempty"`
+}
+
 // OrganizationOverview defines model for organization_overview.
 type OrganizationOverview struct {
 	Clusters *[]ClusterOverview `json:"clusters,omitempty"`
