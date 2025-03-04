@@ -24,6 +24,9 @@ type CreateNodePoolJSONRequestBody = externalRef0.NodePoolOptions
 // LoginJSONRequestBody defines body for Login for application/json ContentType.
 type LoginJSONRequestBody = externalRef0.Login
 
+// CreateOrganizationJSONRequestBody defines body for CreateOrganization for application/json ContentType.
+type CreateOrganizationJSONRequestBody = externalRef0.OrganizationOptions
+
 // CreateClusterJSONRequestBody defines body for CreateCluster for application/json ContentType.
 type CreateClusterJSONRequestBody = externalRef0.ClusterOptions
 
@@ -74,6 +77,9 @@ type ServerInterface interface {
 
 	// (GET /v1/orgs)
 	GetOrganizations(w http.ResponseWriter, r *http.Request)
+
+	// (POST /v1/orgs)
+	CreateOrganization(w http.ResponseWriter, r *http.Request)
 
 	// (POST /v1/orgs/{organization_name}/clusters)
 	CreateCluster(w http.ResponseWriter, r *http.Request, organizationName string)
@@ -331,6 +337,23 @@ func (siw *ServerInterfaceWrapper) GetOrganizations(w http.ResponseWriter, r *ht
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetOrganizations(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// CreateOrganization operation middleware
+func (siw *ServerInterfaceWrapper) CreateOrganization(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateOrganization(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1159,6 +1182,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("GET "+options.BaseURL+"/v1/credentials", wrapper.GetCredentials)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/login", wrapper.Login)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs", wrapper.GetOrganizations)
+	m.HandleFunc("POST "+options.BaseURL+"/v1/orgs", wrapper.CreateOrganization)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/orgs/{organization_name}/clusters", wrapper.CreateCluster)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/clusters/{cluster_name}/node-pools", wrapper.ListClusterNodePools)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/orgs/{organization_name}/clusters/{cluster_name}/node-pools", wrapper.CreateClusterNodePool)

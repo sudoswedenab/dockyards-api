@@ -101,6 +101,27 @@ paths:
                 type: array
                 items:
                   $ref: 'types.yaml#/components/schemas/organization'
+    post:
+      operationId: createOrganization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/organization_options'
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/organization'
+        401: {}
+        422:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/unprocessable_entity_errors'
+        500: {}
   /v1/orgs/{organization_name}/clusters:
     post:
       operationId: createCluster
