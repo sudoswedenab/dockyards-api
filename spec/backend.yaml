@@ -122,6 +122,19 @@ paths:
               schema:
                 $ref: 'types.yaml#/components/schemas/unprocessable_entity_errors'
         500: {}
+  /v1/orgs/{organization_name}:
+    delete:
+      operationId: deleteOrganization
+      parameters:
+      - name: organization_name
+        required: true
+        in: path
+        schema:
+          type: string
+      responses:
+        202: {}
+        401: {}
+        500: {}
   /v1/orgs/{organization_name}/clusters:
     post:
       operationId: createCluster

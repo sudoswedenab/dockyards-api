@@ -160,6 +160,9 @@ type ClientInterface interface {
 
 	CreateOrganization(ctx context.Context, body CreateOrganizationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DeleteOrganization request
+	DeleteOrganization(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateClusterWithBody request with any body
 	CreateClusterWithBody(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -381,6 +384,18 @@ func (c *Client) CreateOrganizationWithBody(ctx context.Context, contentType str
 
 func (c *Client) CreateOrganization(ctx context.Context, body CreateOrganizationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateOrganizationRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteOrganization(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteOrganizationRequest(c.Server, organizationName)
 	if err != nil {
 		return nil, err
 	}
@@ -1048,6 +1063,40 @@ func NewCreateOrganizationRequestWithBody(server string, contentType string, bod
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteOrganizationRequest generates requests for DeleteOrganization
+func NewDeleteOrganizationRequest(server string, organizationName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/orgs/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -2014,6 +2063,9 @@ type ClientWithResponsesInterface interface {
 
 	CreateOrganizationWithResponse(ctx context.Context, body CreateOrganizationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOrganizationResponse, error)
 
+	// DeleteOrganizationWithResponse request
+	DeleteOrganizationWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*DeleteOrganizationResponse, error)
+
 	// CreateClusterWithBodyWithResponse request with any body
 	CreateClusterWithBodyWithResponse(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterResponse, error)
 
@@ -2304,6 +2356,27 @@ func (r CreateOrganizationResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateOrganizationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteOrganizationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteOrganizationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteOrganizationResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2857,6 +2930,15 @@ func (c *ClientWithResponses) CreateOrganizationWithResponse(ctx context.Context
 	return ParseCreateOrganizationResponse(rsp)
 }
 
+// DeleteOrganizationWithResponse request returning *DeleteOrganizationResponse
+func (c *ClientWithResponses) DeleteOrganizationWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*DeleteOrganizationResponse, error) {
+	rsp, err := c.DeleteOrganization(ctx, organizationName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteOrganizationResponse(rsp)
+}
+
 // CreateClusterWithBodyWithResponse request with arbitrary body returning *CreateClusterResponse
 func (c *ClientWithResponses) CreateClusterWithBodyWithResponse(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterResponse, error) {
 	rsp, err := c.CreateClusterWithBody(ctx, organizationName, contentType, body, reqEditors...)
@@ -3352,6 +3434,22 @@ func ParseCreateOrganizationResponse(rsp *http.Response) (*CreateOrganizationRes
 		}
 		response.JSON422 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseDeleteOrganizationResponse parses an HTTP response from a DeleteOrganizationWithResponse call
+func ParseDeleteOrganizationResponse(rsp *http.Response) (*DeleteOrganizationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteOrganizationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
