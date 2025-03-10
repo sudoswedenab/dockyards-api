@@ -200,12 +200,13 @@ type UnprocessableEntityErrors struct {
 
 // User defines model for user.
 type User struct {
-	CreatedAt *time.Time `json:"created_at,omitempty"`
-	Email     string     `json:"email"`
-	ID        string     `json:"id"`
-	Name      string     `json:"name"`
-	Password  *string    `json:"password,omitempty"`
-	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	CreatedAt   *time.Time `json:"created_at,omitempty"`
+	DisplayName *string    `json:"display_name,omitempty"`
+	Email       string     `json:"email"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Password    *string    `json:"password,omitempty"`
+	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
 }
 
 // UserOptions defines model for user_options.

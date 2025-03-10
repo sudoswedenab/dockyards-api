@@ -273,6 +273,8 @@ components:
         updated_at:
           type: string
           format: date-time
+        display_name:
+          type: string
       required:
       - id
       - name
