@@ -402,3 +402,14 @@ components:
           type: string
         duration:
           type: string
+    user_options:
+      properties:
+        display_name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+      required:
+      - email
+      - password

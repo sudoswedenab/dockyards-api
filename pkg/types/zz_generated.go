@@ -208,6 +208,13 @@ type User struct {
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 }
 
+// UserOptions defines model for user_options.
+type UserOptions struct {
+	DisplayName *string `json:"display_name,omitempty"`
+	Email       string  `json:"email"`
+	Password    string  `json:"password"`
+}
+
 // UserOverview defines model for user_overview.
 type UserOverview struct {
 	Email string `json:"email"`
