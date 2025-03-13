@@ -7,21 +7,6 @@ import (
 	"time"
 )
 
-// App defines model for app.
-type App struct {
-	AppSteps    *[]AppStep `json:"app_steps,omitempty"`
-	Description *string    `json:"description,omitempty"`
-	Icon        *string    `json:"icon,omitempty"`
-	ID          string     `json:"id"`
-	Name        string     `json:"name"`
-}
-
-// AppStep defines model for app_step.
-type AppStep struct {
-	Name        string        `json:"name"`
-	StepOptions *[]StepOption `json:"step_options,omitempty"`
-}
-
 // Cluster defines model for cluster.
 type Cluster struct {
 	AllocateInternalIP *bool      `json:"allocate_internal_ip,omitempty"`
@@ -165,19 +150,6 @@ type OrganizationOverview struct {
 // Overview defines model for overview.
 type Overview struct {
 	Organizations []OrganizationOverview `json:"organizations"`
-}
-
-// StepOption defines model for step_option.
-type StepOption struct {
-	Default     *string   `json:"default,omitempty"`
-	DisplayName *string   `json:"display_name,omitempty"`
-	Hidden      *bool     `json:"hidden,omitempty"`
-	JSONPointer *string   `json:"json_pointer,omitempty"`
-	Managed     *bool     `json:"managed,omitempty"`
-	Selection   *[]string `json:"selection,omitempty"`
-	Tags        *[]string `json:"tags,omitempty"`
-	Toggle      *[]string `json:"toggle,omitempty"`
-	Type        *string   `json:"type,omitempty"`
 }
 
 // StorageResource defines model for storage_resource.
