@@ -2364,6 +2364,7 @@ func (r CreateClusterResponse) StatusCode() int {
 type ListClusterNodePoolsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *[]externalRef0.NodePool
 }
 
 // Status returns HTTPResponse.Status
@@ -2385,6 +2386,8 @@ func (r ListClusterNodePoolsResponse) StatusCode() int {
 type CreateClusterNodePoolResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON201      *externalRef0.NodePool
+	JSON422      *externalRef0.UnprocessableEntityErrors
 }
 
 // Status returns HTTPResponse.Status
@@ -2492,6 +2495,8 @@ func (r GetClusterWorkloadsResponse) StatusCode() int {
 type CreateClusterWorkloadResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON201      *externalRef0.Workload
+	JSON422      *externalRef0.UnprocessableEntityErrors
 }
 
 // Status returns HTTPResponse.Status
@@ -3425,6 +3430,16 @@ func ParseListClusterNodePoolsResponse(rsp *http.Response) (*ListClusterNodePool
 		HTTPResponse: rsp,
 	}
 
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []externalRef0.NodePool
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
 	return response, nil
 }
 
@@ -3439,6 +3454,23 @@ func ParseCreateClusterNodePoolResponse(rsp *http.Response) (*CreateClusterNodeP
 	response := &CreateClusterNodePoolResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest externalRef0.NodePool
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest externalRef0.UnprocessableEntityErrors
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	}
 
 	return response, nil
@@ -3539,6 +3571,23 @@ func ParseCreateClusterWorkloadResponse(rsp *http.Response) (*CreateClusterWorkl
 	response := &CreateClusterWorkloadResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest externalRef0.Workload
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest externalRef0.UnprocessableEntityErrors
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	}
 
 	return response, nil

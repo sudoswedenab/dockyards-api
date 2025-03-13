@@ -196,7 +196,7 @@ paths:
         in: path
         schema:
           type: string
-      respenses:
+      responses:
         200:
           content:
             application/json:
@@ -226,7 +226,7 @@ paths:
           application/json:
             schema:
               $ref: 'types.yaml#/components/schemas/node_pool_options'
-      respenses:
+      responses:
         201:
           content:
             application/json:
@@ -342,7 +342,7 @@ paths:
           application/json:
             schema:
               $ref: 'types.yaml#/components/schemas/workload'
-      respenses:
+      responses:
         201:
           content:
             application/json:
