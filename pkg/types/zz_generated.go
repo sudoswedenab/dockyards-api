@@ -34,13 +34,6 @@ type ClusterOptions struct {
 	Version            *string            `json:"version,omitempty"`
 }
 
-// ClusterOverview defines model for cluster_overview.
-type ClusterOverview struct {
-	Deployments *[]DeploymentOverview `json:"deployments,omitempty"`
-	ID          string                `json:"id"`
-	Name        string                `json:"name"`
-}
-
 // Credential defines model for credential.
 type Credential struct {
 	CredentialTemplate *string            `json:"credential_template,omitempty"`
@@ -48,12 +41,6 @@ type Credential struct {
 	ID                 string             `json:"id"`
 	Name               string             `json:"name"`
 	Organization       string             `json:"organization"`
-}
-
-// DeploymentOverview defines model for deployment_overview.
-type DeploymentOverview struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
 }
 
 // IdentityProvider defines model for identity_provider.
@@ -139,19 +126,6 @@ type OrganizationOptions struct {
 	Duration    *string `json:"duration,omitempty"`
 }
 
-// OrganizationOverview defines model for organization_overview.
-type OrganizationOverview struct {
-	Clusters *[]ClusterOverview `json:"clusters,omitempty"`
-	ID       string             `json:"id"`
-	Name     string             `json:"name"`
-	Users    *[]UserOverview    `json:"users,omitempty"`
-}
-
-// Overview defines model for overview.
-type Overview struct {
-	Organizations []OrganizationOverview `json:"organizations"`
-}
-
 // StorageResource defines model for storage_resource.
 type StorageResource struct {
 	Name     string  `json:"name"`
@@ -186,12 +160,6 @@ type UserOptions struct {
 	DisplayName *string `json:"display_name,omitempty"`
 	Email       string  `json:"email"`
 	Password    string  `json:"password"`
-}
-
-// UserOverview defines model for user_overview.
-type UserOverview struct {
-	Email string `json:"email"`
-	ID    string `json:"id"`
 }
 
 // Workload defines model for workload.

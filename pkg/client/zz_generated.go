@@ -228,9 +228,6 @@ type ClientInterface interface {
 	// GetIPPools request
 	GetIPPools(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetOverview request
-	GetOverview(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// Refresh request
 	Refresh(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -684,18 +681,6 @@ func (c *Client) UpdateOrganizationCredential(ctx context.Context, organizationN
 
 func (c *Client) GetIPPools(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetIPPoolsRequest(c.Server, organizationName)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetOverview(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetOverviewRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -1903,33 +1888,6 @@ func NewGetIPPoolsRequest(server string, organizationName string) (*http.Request
 	return req, nil
 }
 
-// NewGetOverviewRequest generates requests for GetOverview
-func NewGetOverviewRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/overview")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
 // NewRefreshRequest generates requests for Refresh
 func NewRefreshRequest(server string) (*http.Request, error) {
 	var err error
@@ -2130,9 +2088,6 @@ type ClientWithResponsesInterface interface {
 
 	// GetIPPoolsWithResponse request
 	GetIPPoolsWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*GetIPPoolsResponse, error)
-
-	// GetOverviewWithResponse request
-	GetOverviewWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetOverviewResponse, error)
 
 	// RefreshWithResponse request
 	RefreshWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*RefreshResponse, error)
@@ -2750,28 +2705,6 @@ func (r GetIPPoolsResponse) StatusCode() int {
 	return 0
 }
 
-type GetOverviewResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *externalRef0.Overview
-}
-
-// Status returns HTTPResponse.Status
-func (r GetOverviewResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetOverviewResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type RefreshResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -3146,15 +3079,6 @@ func (c *ClientWithResponses) GetIPPoolsWithResponse(ctx context.Context, organi
 		return nil, err
 	}
 	return ParseGetIPPoolsResponse(rsp)
-}
-
-// GetOverviewWithResponse request returning *GetOverviewResponse
-func (c *ClientWithResponses) GetOverviewWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetOverviewResponse, error) {
-	rsp, err := c.GetOverview(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetOverviewResponse(rsp)
 }
 
 // RefreshWithResponse request returning *RefreshResponse
@@ -3814,32 +3738,6 @@ func ParseGetIPPoolsResponse(rsp *http.Response) (*GetIPPoolsResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest []externalRef0.IPPool
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetOverviewResponse parses an HTTP response from a GetOverviewWithResponse call
-func ParseGetOverviewResponse(rsp *http.Response) (*GetOverviewResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetOverviewResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest externalRef0.Overview
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

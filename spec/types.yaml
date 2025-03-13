@@ -5,62 +5,6 @@ info:
   description: no
 components:
   schemas:
-    overview:
-      properties:
-        organizations:
-          type: array
-          items:
-            $ref: '#/components/schemas/organization_overview'
-      required:
-      - organizations
-    organization_overview:
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        clusters:
-          type: array
-          items:
-            $ref: '#/components/schemas/cluster_overview'
-        users:
-          type: array
-          items:
-            $ref: '#/components/schemas/user_overview'
-      required:
-      - id
-      - name
-    cluster_overview:
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        deployments:
-          type: array
-          items:
-            $ref: '#/components/schemas/deployment_overview'
-      required:
-      - id
-      - name
-    deployment_overview:
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-      required:
-      - id
-      - name
-    user_overview:
-      properties:
-        id:
-          type: string
-        email:
-          type: string
-      required:
-      - id
-      - email
     options:
       properties:
         version:

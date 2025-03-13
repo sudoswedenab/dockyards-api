@@ -601,15 +601,6 @@ paths:
               schema:
                 $ref: 'types.yaml#/components/schemas/credential'
         500: {}
-  /v1/overview:
-    get:
-      operationId: getOverview
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: 'types.yaml#/components/schemas/overview'
   /v1/whoami:
     get:
       operationId: whoami

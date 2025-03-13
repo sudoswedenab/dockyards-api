@@ -135,9 +135,6 @@ type ServerInterface interface {
 	// (GET /v1/orgs/{organization_name}/ip-pools)
 	GetIPPools(w http.ResponseWriter, r *http.Request, organizationName string)
 
-	// (GET /v1/overview)
-	GetOverview(w http.ResponseWriter, r *http.Request)
-
 	// (POST /v1/refresh)
 	Refresh(w http.ResponseWriter, r *http.Request)
 
@@ -1041,23 +1038,6 @@ func (siw *ServerInterfaceWrapper) GetIPPools(w http.ResponseWriter, r *http.Req
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// GetOverview operation middleware
-func (siw *ServerInterfaceWrapper) GetOverview(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetOverview(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
 // Refresh operation middleware
 func (siw *ServerInterfaceWrapper) Refresh(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1232,7 +1212,6 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/credentials/{credential_name}", wrapper.GetOrganizationCredential)
 	m.HandleFunc("PUT "+options.BaseURL+"/v1/orgs/{organization_name}/credentials/{credential_name}", wrapper.UpdateOrganizationCredential)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/ip-pools", wrapper.GetIPPools)
-	m.HandleFunc("GET "+options.BaseURL+"/v1/overview", wrapper.GetOverview)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/refresh", wrapper.Refresh)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/whoami", wrapper.Whoami)
 
