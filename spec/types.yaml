@@ -173,15 +173,20 @@ components:
           type: boolean
         duration:
           type: string
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+        condition:
+          type: string
       required:
       - id
       - name
       - organization
-      - state
       - version
       - created_at
-      - node_count
-      - node_pools
     credential:
       properties:
         id:

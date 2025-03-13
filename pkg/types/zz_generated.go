@@ -9,16 +9,19 @@ import (
 
 // Cluster defines model for cluster.
 type Cluster struct {
-	AllocateInternalIP *bool      `json:"allocate_internal_ip,omitempty"`
-	CreatedAt          time.Time  `json:"created_at"`
-	Duration           *string    `json:"duration,omitempty"`
-	ID                 string     `json:"id"`
-	Name               string     `json:"name"`
-	NodeCount          int        `json:"node_count"`
-	NodePools          []NodePool `json:"node_pools"`
-	Organization       string     `json:"organization"`
-	State              string     `json:"state"`
-	Version            string     `json:"version"`
+	AllocateInternalIP *bool       `json:"allocate_internal_ip,omitempty"`
+	Condition          *string     `json:"condition,omitempty"`
+	CreatedAt          time.Time   `json:"created_at"`
+	DeletedAt          *time.Time  `json:"deleted_at,omitempty"`
+	Duration           *string     `json:"duration,omitempty"`
+	ID                 string      `json:"id"`
+	Name               string      `json:"name"`
+	NodeCount          *int        `json:"node_count,omitempty"`
+	NodePools          *[]NodePool `json:"node_pools,omitempty"`
+	Organization       string      `json:"organization"`
+	State              *string     `json:"state,omitempty"`
+	UpdatedAt          *time.Time  `json:"updated_at,omitempty"`
+	Version            string      `json:"version"`
 }
 
 // ClusterOptions defines model for cluster_options.
