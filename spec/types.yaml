@@ -224,6 +224,8 @@ components:
           format: date-time
         display_name:
           type: string
+        provider_id:
+          type: string
       required:
       - id
       - name

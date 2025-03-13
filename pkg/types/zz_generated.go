@@ -155,6 +155,7 @@ type User struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
 	Password    *string    `json:"password,omitempty"`
+	ProviderID  *string    `json:"provider_id,omitempty"`
 	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
 }
 
