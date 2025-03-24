@@ -163,6 +163,9 @@ type ClientInterface interface {
 	// DeleteOrganization request
 	DeleteOrganization(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetOrganizationClusters request
+	GetOrganizationClusters(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateClusterWithBody request with any body
 	CreateClusterWithBody(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -393,6 +396,18 @@ func (c *Client) CreateOrganization(ctx context.Context, body CreateOrganization
 
 func (c *Client) DeleteOrganization(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteOrganizationRequest(c.Server, organizationName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetOrganizationClusters(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetOrganizationClustersRequest(c.Server, organizationName)
 	if err != nil {
 		return nil, err
 	}
@@ -1079,6 +1094,40 @@ func NewDeleteOrganizationRequest(server string, organizationName string) (*http
 	}
 
 	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetOrganizationClustersRequest generates requests for GetOrganizationClusters
+func NewGetOrganizationClustersRequest(server string, organizationName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/orgs/%s/clusters", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -2024,6 +2073,9 @@ type ClientWithResponsesInterface interface {
 	// DeleteOrganizationWithResponse request
 	DeleteOrganizationWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*DeleteOrganizationResponse, error)
 
+	// GetOrganizationClustersWithResponse request
+	GetOrganizationClustersWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*GetOrganizationClustersResponse, error)
+
 	// CreateClusterWithBodyWithResponse request with any body
 	CreateClusterWithBodyWithResponse(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterResponse, error)
 
@@ -2332,6 +2384,28 @@ func (r DeleteOrganizationResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r DeleteOrganizationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetOrganizationClustersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]externalRef0.Cluster
+}
+
+// Status returns HTTPResponse.Status
+func (r GetOrganizationClustersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetOrganizationClustersResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2877,6 +2951,15 @@ func (c *ClientWithResponses) DeleteOrganizationWithResponse(ctx context.Context
 	return ParseDeleteOrganizationResponse(rsp)
 }
 
+// GetOrganizationClustersWithResponse request returning *GetOrganizationClustersResponse
+func (c *ClientWithResponses) GetOrganizationClustersWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*GetOrganizationClustersResponse, error) {
+	rsp, err := c.GetOrganizationClusters(ctx, organizationName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetOrganizationClustersResponse(rsp)
+}
+
 // CreateClusterWithBodyWithResponse request with arbitrary body returning *CreateClusterResponse
 func (c *ClientWithResponses) CreateClusterWithBodyWithResponse(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterResponse, error) {
 	rsp, err := c.CreateClusterWithBody(ctx, organizationName, contentType, body, reqEditors...)
@@ -3379,6 +3462,32 @@ func ParseDeleteOrganizationResponse(rsp *http.Response) (*DeleteOrganizationRes
 	response := &DeleteOrganizationResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetOrganizationClustersResponse parses an HTTP response from a GetOrganizationClustersWithResponse call
+func ParseGetOrganizationClustersResponse(rsp *http.Response) (*GetOrganizationClustersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetOrganizationClustersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []externalRef0.Cluster
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	}
 
 	return response, nil

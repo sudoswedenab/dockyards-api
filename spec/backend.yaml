@@ -163,6 +163,24 @@ paths:
               schema:
                 $ref: 'types.yaml#/components/schemas/unprocessable_entity_errors'
         500: {}
+    get:
+      operationId: getOrganizationClusters
+      parameters:
+      - name: organization_name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'types.yaml#/components/schemas/cluster'
+        401: {}
+        500: {}
   /v1/orgs/{organization_name}/ip-pools:
     get:
       operationId: getIpPools
