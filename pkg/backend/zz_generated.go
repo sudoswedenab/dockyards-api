@@ -37,10 +37,10 @@ type CreateClusterNodePoolJSONRequestBody = externalRef0.NodePoolOptions
 type UpdateClusterNodePoolJSONRequestBody = externalRef0.NodePoolOptions
 
 // CreateClusterWorkloadJSONRequestBody defines body for CreateClusterWorkload for application/json ContentType.
-type CreateClusterWorkloadJSONRequestBody = externalRef0.Workload
+type CreateClusterWorkloadJSONRequestBody = externalRef0.WorkloadOptions
 
 // UpdateClusterWorkloadJSONRequestBody defines body for UpdateClusterWorkload for application/json ContentType.
-type UpdateClusterWorkloadJSONRequestBody = externalRef0.Workload
+type UpdateClusterWorkloadJSONRequestBody = externalRef0.WorkloadOptions
 
 // CreateOrganizationCredentialJSONRequestBody defines body for CreateOrganizationCredential for application/json ContentType.
 type CreateOrganizationCredentialJSONRequestBody = externalRef0.Credential

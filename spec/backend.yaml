@@ -348,7 +348,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: 'types.yaml#/components/schemas/workload'
+              $ref: 'types.yaml#/components/schemas/workload_options'
       responses:
         201:
           content:
@@ -437,7 +437,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: 'types.yaml#/components/schemas/workload'
+              $ref: 'types.yaml#/components/schemas/workload_options'
       responses:
         202: {}
         400: {}
