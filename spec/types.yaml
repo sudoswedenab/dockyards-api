@@ -275,6 +275,31 @@ components:
           type: string
         provenience:
           type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+        condition:
+          type: string
+      required:
+      - id
+      - name
+      - created_at
+    workload_options:
+      properties:
+        name:
+          type: string
+        workload_template_name:
+          type: string
+        input:
+          type: object
+        namespace:
+          type: string
     ip_pool:
       properties:
         id:

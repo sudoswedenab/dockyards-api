@@ -168,10 +168,22 @@ type UserOptions struct {
 
 // Workload defines model for workload.
 type Workload struct {
-	ID                   *string                 `json:"id,omitempty"`
+	Condition            *string                 `json:"condition,omitempty"`
+	CreatedAt            time.Time               `json:"created_at"`
+	DeletedAt            *time.Time              `json:"deleted_at,omitempty"`
+	ID                   string                  `json:"id"`
+	Input                *map[string]interface{} `json:"input,omitempty"`
+	Name                 string                  `json:"name"`
+	Namespace            *string                 `json:"namespace,omitempty"`
+	Provenience          *string                 `json:"provenience,omitempty"`
+	UpdatedAt            *time.Time              `json:"updated_at,omitempty"`
+	WorkloadTemplateName *string                 `json:"workload_template_name,omitempty"`
+}
+
+// WorkloadOptions defines model for workload_options.
+type WorkloadOptions struct {
 	Input                *map[string]interface{} `json:"input,omitempty"`
 	Name                 *string                 `json:"name,omitempty"`
 	Namespace            *string                 `json:"namespace,omitempty"`
-	Provenience          *string                 `json:"provenience,omitempty"`
 	WorkloadTemplateName *string                 `json:"workload_template_name,omitempty"`
 }
