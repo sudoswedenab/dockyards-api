@@ -54,9 +54,6 @@ type ServerInterface interface {
 	// (GET /v1/cluster-options)
 	GetClusterOptions(w http.ResponseWriter, r *http.Request)
 
-	// (GET /v1/clusters)
-	GetClusters(w http.ResponseWriter, r *http.Request)
-
 	// (DELETE /v1/clusters/{cluster_id})
 	DeleteCluster(w http.ResponseWriter, r *http.Request, clusterID string)
 
@@ -162,23 +159,6 @@ func (siw *ServerInterfaceWrapper) GetClusterOptions(w http.ResponseWriter, r *h
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetClusterOptions(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// GetClusters operation middleware
-func (siw *ServerInterfaceWrapper) GetClusters(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetClusters(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1216,7 +1196,6 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	}
 
 	m.HandleFunc("GET "+options.BaseURL+"/v1/cluster-options", wrapper.GetClusterOptions)
-	m.HandleFunc("GET "+options.BaseURL+"/v1/clusters", wrapper.GetClusters)
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/clusters/{cluster_id}", wrapper.DeleteCluster)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/clusters/{cluster_id}", wrapper.GetCluster)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/clusters/{cluster_id}/kubeconfig", wrapper.GetKubeconfig)

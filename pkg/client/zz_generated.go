@@ -127,9 +127,6 @@ type ClientInterface interface {
 	// GetClusterOptions request
 	GetClusterOptions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetClusters request
-	GetClusters(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// DeleteCluster request
 	DeleteCluster(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -240,18 +237,6 @@ type ClientInterface interface {
 
 func (c *Client) GetClusterOptions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetClusterOptionsRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetClusters(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetClustersRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -740,33 +725,6 @@ func NewGetClusterOptionsRequest(server string) (*http.Request, error) {
 	}
 
 	operationPath := fmt.Sprintf("/v1/cluster-options")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewGetClustersRequest generates requests for GetClusters
-func NewGetClustersRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/clusters")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -2037,9 +1995,6 @@ type ClientWithResponsesInterface interface {
 	// GetClusterOptionsWithResponse request
 	GetClusterOptionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetClusterOptionsResponse, error)
 
-	// GetClustersWithResponse request
-	GetClustersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetClustersResponse, error)
-
 	// DeleteClusterWithResponse request
 	DeleteClusterWithResponse(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*DeleteClusterResponse, error)
 
@@ -2164,28 +2119,6 @@ func (r GetClusterOptionsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetClusterOptionsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type GetClustersResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]externalRef0.Cluster
-}
-
-// Status returns HTTPResponse.Status
-func (r GetClustersResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetClustersResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2837,15 +2770,6 @@ func (c *ClientWithResponses) GetClusterOptionsWithResponse(ctx context.Context,
 	return ParseGetClusterOptionsResponse(rsp)
 }
 
-// GetClustersWithResponse request returning *GetClustersResponse
-func (c *ClientWithResponses) GetClustersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetClustersResponse, error) {
-	rsp, err := c.GetClusters(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetClustersResponse(rsp)
-}
-
 // DeleteClusterWithResponse request returning *DeleteClusterResponse
 func (c *ClientWithResponses) DeleteClusterWithResponse(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*DeleteClusterResponse, error) {
 	rsp, err := c.DeleteCluster(ctx, clusterID, reqEditors...)
@@ -3203,32 +3127,6 @@ func ParseGetClusterOptionsResponse(rsp *http.Response) (*GetClusterOptionsRespo
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest externalRef0.Options
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetClustersResponse parses an HTTP response from a GetClustersWithResponse call
-func ParseGetClustersResponse(rsp *http.Response) (*GetClustersResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetClustersResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []externalRef0.Cluster
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

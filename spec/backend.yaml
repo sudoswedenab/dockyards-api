@@ -50,17 +50,6 @@ paths:
               schema:
                 $ref: 'types.yaml#/components/schemas/options'
         500: {}
-  /v1/clusters:
-    get:
-      operationId: getClusters
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: 'types.yaml#/components/schemas/cluster'
   /v1/clusters/{cluster_id}:
     get:
       operationId: getCluster
