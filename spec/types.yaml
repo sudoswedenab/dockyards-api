@@ -181,6 +181,10 @@ components:
           format: date-time
         condition:
           type: string
+        dns_zones:
+          type: array
+          items:
+            type: string
       required:
       - id
       - name

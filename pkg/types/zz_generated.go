@@ -13,6 +13,7 @@ type Cluster struct {
 	Condition          *string     `json:"condition,omitempty"`
 	CreatedAt          time.Time   `json:"created_at"`
 	DeletedAt          *time.Time  `json:"deleted_at,omitempty"`
+	DNSZones           *[]string   `json:"dns_zones,omitempty"`
 	Duration           *string     `json:"duration,omitempty"`
 	ID                 string      `json:"id"`
 	Name               string      `json:"name"`
