@@ -69,9 +69,6 @@ type ServerInterface interface {
 	// (POST /v1/clusters/{cluster_id}/node-pools)
 	CreateNodePool(w http.ResponseWriter, r *http.Request, clusterID string)
 
-	// (GET /v1/credentials)
-	GetCredentials(w http.ResponseWriter, r *http.Request)
-
 	// (POST /v1/login)
 	Login(w http.ResponseWriter, r *http.Request)
 
@@ -277,23 +274,6 @@ func (siw *ServerInterfaceWrapper) CreateNodePool(w http.ResponseWriter, r *http
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateNodePool(w, r, clusterID)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// GetCredentials operation middleware
-func (siw *ServerInterfaceWrapper) GetCredentials(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetCredentials(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1243,7 +1223,6 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("GET "+options.BaseURL+"/v1/clusters/{cluster_id}", wrapper.GetCluster)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/clusters/{cluster_id}/kubeconfig", wrapper.GetKubeconfig)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/clusters/{cluster_id}/node-pools", wrapper.CreateNodePool)
-	m.HandleFunc("GET "+options.BaseURL+"/v1/credentials", wrapper.GetCredentials)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/login", wrapper.Login)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs", wrapper.GetOrganizations)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/orgs", wrapper.CreateOrganization)

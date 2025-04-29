@@ -147,9 +147,6 @@ type ClientInterface interface {
 
 	CreateNodePool(ctx context.Context, clusterID string, body CreateNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetCredentials request
-	GetCredentials(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// LoginWithBody request with any body
 	LoginWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -308,18 +305,6 @@ func (c *Client) CreateNodePoolWithBody(ctx context.Context, clusterID string, c
 
 func (c *Client) CreateNodePool(ctx context.Context, clusterID string, body CreateNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateNodePoolRequest(c.Server, clusterID, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetCredentials(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetCredentialsRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -922,33 +907,6 @@ func NewCreateNodePoolRequestWithBody(server string, clusterID string, contentTy
 	}
 
 	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewGetCredentialsRequest generates requests for GetCredentials
-func NewGetCredentialsRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/credentials")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
 
 	return req, nil
 }
@@ -2098,9 +2056,6 @@ type ClientWithResponsesInterface interface {
 
 	CreateNodePoolWithResponse(ctx context.Context, clusterID string, body CreateNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateNodePoolResponse, error)
 
-	// GetCredentialsWithResponse request
-	GetCredentialsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetCredentialsResponse, error)
-
 	// LoginWithBodyWithResponse request with any body
 	LoginWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*LoginResponse, error)
 
@@ -2300,28 +2255,6 @@ func (r CreateNodePoolResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateNodePoolResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type GetCredentialsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]externalRef0.Credential
-}
-
-// Status returns HTTPResponse.Status
-func (r GetCredentialsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetCredentialsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2930,15 +2863,6 @@ func (c *ClientWithResponses) CreateNodePoolWithResponse(ctx context.Context, cl
 	return ParseCreateNodePoolResponse(rsp)
 }
 
-// GetCredentialsWithResponse request returning *GetCredentialsResponse
-func (c *ClientWithResponses) GetCredentialsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetCredentialsResponse, error) {
-	rsp, err := c.GetCredentials(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetCredentialsResponse(rsp)
-}
-
 // LoginWithBodyWithResponse request with arbitrary body returning *LoginResponse
 func (c *ClientWithResponses) LoginWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*LoginResponse, error) {
 	rsp, err := c.LoginWithBody(ctx, contentType, body, reqEditors...)
@@ -3358,32 +3282,6 @@ func ParseCreateNodePoolResponse(rsp *http.Response) (*CreateNodePoolResponse, e
 			return nil, err
 		}
 		response.JSON201 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetCredentialsResponse parses an HTTP response from a GetCredentialsWithResponse call
-func ParseGetCredentialsResponse(rsp *http.Response) (*GetCredentialsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetCredentialsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []externalRef0.Credential
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
 
 	}
 
