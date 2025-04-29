@@ -61,6 +61,11 @@ type IPPool struct {
 	Name      *string   `json:"name,omitempty"`
 }
 
+// KubeconfigOptions defines model for kubeconfig_options.
+type KubeconfigOptions struct {
+	Duration *string `json:"duration,omitempty"`
+}
+
 // Login defines model for login.
 type Login struct {
 	Email    string `json:"email"`

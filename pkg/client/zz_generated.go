@@ -13,8 +13,11 @@ import (
 	"net/url"
 	"strings"
 
+	"gopkg.in/yaml.v2"
+
 	externalRef0 "bitbucket.org/sudosweden/dockyards-api/pkg/types"
 	"github.com/oapi-codegen/runtime"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 const (
@@ -32,6 +35,9 @@ type CreateOrganizationJSONRequestBody = externalRef0.OrganizationOptions
 
 // CreateClusterJSONRequestBody defines body for CreateCluster for application/json ContentType.
 type CreateClusterJSONRequestBody = externalRef0.ClusterOptions
+
+// CreateClusterKubeconfigJSONRequestBody defines body for CreateClusterKubeconfig for application/json ContentType.
+type CreateClusterKubeconfigJSONRequestBody = externalRef0.KubeconfigOptions
 
 // CreateClusterNodePoolJSONRequestBody defines body for CreateClusterNodePool for application/json ContentType.
 type CreateClusterNodePoolJSONRequestBody = externalRef0.NodePoolOptions
@@ -167,6 +173,11 @@ type ClientInterface interface {
 	CreateClusterWithBody(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateCluster(ctx context.Context, organizationName string, body CreateClusterJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateClusterKubeconfigWithBody request with any body
+	CreateClusterKubeconfigWithBody(ctx context.Context, organizationName string, clusterName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateClusterKubeconfig(ctx context.Context, organizationName string, clusterName string, body CreateClusterKubeconfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListClusterNodePools request
 	ListClusterNodePools(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -417,6 +428,30 @@ func (c *Client) CreateClusterWithBody(ctx context.Context, organizationName str
 
 func (c *Client) CreateCluster(ctx context.Context, organizationName string, body CreateClusterJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateClusterRequest(c.Server, organizationName, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateClusterKubeconfigWithBody(ctx context.Context, organizationName string, clusterName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateClusterKubeconfigRequestWithBody(c.Server, organizationName, clusterName, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateClusterKubeconfig(ctx context.Context, organizationName string, clusterName string, body CreateClusterKubeconfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateClusterKubeconfigRequest(c.Server, organizationName, clusterName, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1121,6 +1156,60 @@ func NewCreateClusterRequestWithBody(server string, organizationName string, con
 	}
 
 	operationPath := fmt.Sprintf("/v1/orgs/%s/clusters", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCreateClusterKubeconfigRequest calls the generic CreateClusterKubeconfig builder with application/json body
+func NewCreateClusterKubeconfigRequest(server string, organizationName string, clusterName string, body CreateClusterKubeconfigJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateClusterKubeconfigRequestWithBody(server, organizationName, clusterName, "application/json", bodyReader)
+}
+
+// NewCreateClusterKubeconfigRequestWithBody generates requests for CreateClusterKubeconfig with any type of body
+func NewCreateClusterKubeconfigRequestWithBody(server string, organizationName string, clusterName string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "cluster_name", runtime.ParamLocationPath, clusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/orgs/%s/clusters/%s/kubeconfig", pathParam0, pathParam1)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -2036,6 +2125,11 @@ type ClientWithResponsesInterface interface {
 
 	CreateClusterWithResponse(ctx context.Context, organizationName string, body CreateClusterJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateClusterResponse, error)
 
+	// CreateClusterKubeconfigWithBodyWithResponse request with any body
+	CreateClusterKubeconfigWithBodyWithResponse(ctx context.Context, organizationName string, clusterName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterKubeconfigResponse, error)
+
+	CreateClusterKubeconfigWithResponse(ctx context.Context, organizationName string, clusterName string, body CreateClusterKubeconfigJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateClusterKubeconfigResponse, error)
+
 	// ListClusterNodePoolsWithResponse request
 	ListClusterNodePoolsWithResponse(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*ListClusterNodePoolsResponse, error)
 
@@ -2362,6 +2456,28 @@ func (r CreateClusterResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateClusterResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateClusterKubeconfigResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	YAML201      *openapi_types.File
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateClusterKubeconfigResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateClusterKubeconfigResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2901,6 +3017,23 @@ func (c *ClientWithResponses) CreateClusterWithResponse(ctx context.Context, org
 	return ParseCreateClusterResponse(rsp)
 }
 
+// CreateClusterKubeconfigWithBodyWithResponse request with arbitrary body returning *CreateClusterKubeconfigResponse
+func (c *ClientWithResponses) CreateClusterKubeconfigWithBodyWithResponse(ctx context.Context, organizationName string, clusterName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterKubeconfigResponse, error) {
+	rsp, err := c.CreateClusterKubeconfigWithBody(ctx, organizationName, clusterName, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateClusterKubeconfigResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateClusterKubeconfigWithResponse(ctx context.Context, organizationName string, clusterName string, body CreateClusterKubeconfigJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateClusterKubeconfigResponse, error) {
+	rsp, err := c.CreateClusterKubeconfig(ctx, organizationName, clusterName, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateClusterKubeconfigResponse(rsp)
+}
+
 // ListClusterNodePoolsWithResponse request returning *ListClusterNodePoolsResponse
 func (c *ClientWithResponses) ListClusterNodePoolsWithResponse(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*ListClusterNodePoolsResponse, error) {
 	rsp, err := c.ListClusterNodePools(ctx, organizationName, clusterName, reqEditors...)
@@ -3418,6 +3551,32 @@ func ParseCreateClusterResponse(rsp *http.Response) (*CreateClusterResponse, err
 			return nil, err
 		}
 		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateClusterKubeconfigResponse parses an HTTP response from a CreateClusterKubeconfigWithResponse call
+func ParseCreateClusterKubeconfigResponse(rsp *http.Response) (*CreateClusterKubeconfigResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateClusterKubeconfigResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "yaml") && rsp.StatusCode == 201:
+		var dest openapi_types.File
+		if err := yaml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.YAML201 = &dest
 
 	}
 

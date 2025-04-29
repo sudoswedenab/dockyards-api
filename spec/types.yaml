@@ -342,3 +342,7 @@ components:
       required:
       - email
       - password
+    kubeconfig_options:
+      properties:
+        duration:
+          type: string

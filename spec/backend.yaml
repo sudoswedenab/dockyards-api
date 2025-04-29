@@ -479,6 +479,7 @@ paths:
         500: {}
   /v1/clusters/{cluster_id}/kubeconfig:
     get:
+      deprecated: true
       operationId: getKubeconfig
       parameters:
       - name: cluster_id
@@ -639,6 +640,36 @@ paths:
             application/json:
               schema:
                 $ref: 'types.yaml#/components/schemas/node_pool'
+        401: {}
+        409: {}
+        500: {}
+  /v1/orgs/{organization_name}/clusters/{cluster_name}/kubeconfig:
+    post:
+      operationId: createClusterKubeconfig
+      parameters:
+      - name: organization_name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: cluster_name
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/kubeconfig_options'
+      responses:
+        201:
+          content:
+            application/yaml:
+              schema:
+                type: string
+                format: binary
         401: {}
         409: {}
         500: {}
