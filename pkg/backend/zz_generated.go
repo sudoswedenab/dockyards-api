@@ -63,9 +63,6 @@ type ServerInterface interface {
 	// (GET /v1/clusters/{cluster_id})
 	GetCluster(w http.ResponseWriter, r *http.Request, clusterID string)
 
-	// (GET /v1/clusters/{cluster_id}/kubeconfig)
-	GetKubeconfig(w http.ResponseWriter, r *http.Request, clusterID string)
-
 	// (POST /v1/clusters/{cluster_id}/node-pools)
 	CreateNodePool(w http.ResponseWriter, r *http.Request, clusterID string)
 
@@ -218,34 +215,6 @@ func (siw *ServerInterfaceWrapper) GetCluster(w http.ResponseWriter, r *http.Req
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetCluster(w, r, clusterID)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// GetKubeconfig operation middleware
-func (siw *ServerInterfaceWrapper) GetKubeconfig(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "cluster_id" -------------
-	var clusterID string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "cluster_id", r.PathValue("cluster_id"), &clusterID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "cluster_id", Err: err})
-		return
-	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetKubeconfig(w, r, clusterID)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1221,7 +1190,6 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("GET "+options.BaseURL+"/v1/cluster-options", wrapper.GetClusterOptions)
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/clusters/{cluster_id}", wrapper.DeleteCluster)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/clusters/{cluster_id}", wrapper.GetCluster)
-	m.HandleFunc("GET "+options.BaseURL+"/v1/clusters/{cluster_id}/kubeconfig", wrapper.GetKubeconfig)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/clusters/{cluster_id}/node-pools", wrapper.CreateNodePool)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/login", wrapper.Login)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs", wrapper.GetOrganizations)

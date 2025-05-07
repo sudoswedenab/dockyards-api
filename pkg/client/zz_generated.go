@@ -139,9 +139,6 @@ type ClientInterface interface {
 	// GetCluster request
 	GetCluster(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetKubeconfig request
-	GetKubeconfig(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// CreateNodePoolWithBody request with any body
 	CreateNodePoolWithBody(ctx context.Context, clusterID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -269,18 +266,6 @@ func (c *Client) DeleteCluster(ctx context.Context, clusterID string, reqEditors
 
 func (c *Client) GetCluster(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetClusterRequest(c.Server, clusterID)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetKubeconfig(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetKubeconfigRequest(c.Server, clusterID)
 	if err != nil {
 		return nil, err
 	}
@@ -813,40 +798,6 @@ func NewGetClusterRequest(server string, clusterID string) (*http.Request, error
 	}
 
 	operationPath := fmt.Sprintf("/v1/clusters/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewGetKubeconfigRequest generates requests for GetKubeconfig
-func NewGetKubeconfigRequest(server string, clusterID string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "cluster_id", runtime.ParamLocationPath, clusterID)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/clusters/%s/kubeconfig", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -2048,9 +1999,6 @@ type ClientWithResponsesInterface interface {
 	// GetClusterWithResponse request
 	GetClusterWithResponse(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*GetClusterResponse, error)
 
-	// GetKubeconfigWithResponse request
-	GetKubeconfigWithResponse(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*GetKubeconfigResponse, error)
-
 	// CreateNodePoolWithBodyWithResponse request with any body
 	CreateNodePoolWithBodyWithResponse(ctx context.Context, clusterID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateNodePoolResponse, error)
 
@@ -2211,28 +2159,6 @@ func (r GetClusterResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetClusterResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type GetKubeconfigResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *string
-}
-
-// Status returns HTTPResponse.Status
-func (r GetKubeconfigResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetKubeconfigResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2837,15 +2763,6 @@ func (c *ClientWithResponses) GetClusterWithResponse(ctx context.Context, cluste
 	return ParseGetClusterResponse(rsp)
 }
 
-// GetKubeconfigWithResponse request returning *GetKubeconfigResponse
-func (c *ClientWithResponses) GetKubeconfigWithResponse(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*GetKubeconfigResponse, error) {
-	rsp, err := c.GetKubeconfig(ctx, clusterID, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetKubeconfigResponse(rsp)
-}
-
 // CreateNodePoolWithBodyWithResponse request with arbitrary body returning *CreateNodePoolResponse
 func (c *ClientWithResponses) CreateNodePoolWithBodyWithResponse(ctx context.Context, clusterID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateNodePoolResponse, error) {
 	rsp, err := c.CreateNodePoolWithBody(ctx, clusterID, contentType, body, reqEditors...)
@@ -3226,32 +3143,6 @@ func ParseGetClusterResponse(rsp *http.Response) (*GetClusterResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest externalRef0.Cluster
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetKubeconfigResponse parses an HTTP response from a GetKubeconfigWithResponse call
-func ParseGetKubeconfigResponse(rsp *http.Response) (*GetKubeconfigResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetKubeconfigResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest string
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

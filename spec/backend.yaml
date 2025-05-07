@@ -477,24 +477,6 @@ paths:
         401: {}
         404: {}
         500: {}
-  /v1/clusters/{cluster_id}/kubeconfig:
-    get:
-      deprecated: true
-      operationId: getKubeconfig
-      parameters:
-      - name: cluster_id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                type: string
-        401: {}
-        500: {} 
   /v1/orgs/{organization_name}/credentials:
     post:
       operationId: createOrganizationCredential
