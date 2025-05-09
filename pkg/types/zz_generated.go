@@ -127,12 +127,14 @@ type Organization struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
 	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
+	VoucherCode *string    `json:"voucher_code,omitempty"`
 }
 
 // OrganizationOptions defines model for organization_options.
 type OrganizationOptions struct {
 	DisplayName *string `json:"display_name,omitempty"`
 	Duration    *string `json:"duration,omitempty"`
+	VoucherCode *string `json:"voucher_code,omitempty"`
 }
 
 // StorageResource defines model for storage_resource.

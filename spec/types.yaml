@@ -38,6 +38,8 @@ components:
           format: date-time
         condition:
           type: string
+        voucher_code:
+          type: string
       required:
       - id
       - name
@@ -330,6 +332,8 @@ components:
         display_name:
           type: string
         duration:
+          type: string
+        voucher_code:
           type: string
     user_options:
       properties:
