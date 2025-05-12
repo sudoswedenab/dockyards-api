@@ -194,8 +194,6 @@ components:
       required:
       - id
       - name
-      - organization
-      - version
       - created_at
     credential:
       properties:

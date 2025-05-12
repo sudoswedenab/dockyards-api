@@ -20,10 +20,10 @@ type Cluster struct {
 	Name               string      `json:"name"`
 	NodeCount          *int        `json:"node_count,omitempty"`
 	NodePools          *[]NodePool `json:"node_pools,omitempty"`
-	Organization       string      `json:"organization"`
+	Organization       *string     `json:"organization,omitempty"`
 	State              *string     `json:"state,omitempty"`
 	UpdatedAt          *time.Time  `json:"updated_at,omitempty"`
-	Version            string      `json:"version"`
+	Version            *string     `json:"version,omitempty"`
 }
 
 // ClusterOptions defines model for cluster_options.
