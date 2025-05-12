@@ -126,6 +126,7 @@ type Organization struct {
 	Duration    *string    `json:"duration,omitempty"`
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
+	ProviderID  *string    `json:"provider_id,omitempty"`
 	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
 	VoucherCode *string    `json:"voucher_code,omitempty"`
 }
