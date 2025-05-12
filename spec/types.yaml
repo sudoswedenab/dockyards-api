@@ -189,6 +189,8 @@ components:
           type: array
           items:
             type: string
+        api_endpoint:
+          type: string
       required:
       - id
       - name

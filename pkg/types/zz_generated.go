@@ -10,6 +10,7 @@ import (
 // Cluster defines model for cluster.
 type Cluster struct {
 	AllocateInternalIP *bool       `json:"allocate_internal_ip,omitempty"`
+	APIEndpoint        *string     `json:"api_endpoint,omitempty"`
 	Condition          *string     `json:"condition,omitempty"`
 	CreatedAt          time.Time   `json:"created_at"`
 	DeletedAt          *time.Time  `json:"deleted_at,omitempty"`
