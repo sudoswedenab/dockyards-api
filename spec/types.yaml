@@ -42,6 +42,9 @@ components:
           type: string
         provider_id:
           type: string
+        expires_at:
+          type: string
+          format: date-time
       required:
       - id
       - name
@@ -191,6 +194,9 @@ components:
             type: string
         api_endpoint:
           type: string
+        expires_at:
+          type: string
+          format: date-time
       required:
       - id
       - name

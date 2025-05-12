@@ -16,6 +16,7 @@ type Cluster struct {
 	DeletedAt          *time.Time  `json:"deleted_at,omitempty"`
 	DNSZones           *[]string   `json:"dns_zones,omitempty"`
 	Duration           *string     `json:"duration,omitempty"`
+	ExpiresAt          *time.Time  `json:"expires_at,omitempty"`
 	ID                 string      `json:"id"`
 	Name               string      `json:"name"`
 	NodeCount          *int        `json:"node_count,omitempty"`
@@ -125,6 +126,7 @@ type Organization struct {
 	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
 	DisplayName *string    `json:"display_name,omitempty"`
 	Duration    *string    `json:"duration,omitempty"`
+	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
 	ProviderID  *string    `json:"provider_id,omitempty"`
