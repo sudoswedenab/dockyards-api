@@ -45,6 +45,8 @@ components:
         expires_at:
           type: string
           format: date-time
+        credential_reference_name:
+          type: string
       required:
       - id
       - name
@@ -359,6 +361,8 @@ components:
         duration:
           type: string
         voucher_code:
+          type: string
+        credential_reference_name:
           type: string
     user_options:
       properties:

@@ -130,24 +130,26 @@ type Options struct {
 
 // Organization defines model for organization.
 type Organization struct {
-	Condition   *string    `json:"condition,omitempty"`
-	CreatedAt   time.Time  `json:"created_at"`
-	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
-	DisplayName *string    `json:"display_name,omitempty"`
-	Duration    *string    `json:"duration,omitempty"`
-	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
-	ID          string     `json:"id"`
-	Name        string     `json:"name"`
-	ProviderID  *string    `json:"provider_id,omitempty"`
-	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
-	VoucherCode *string    `json:"voucher_code,omitempty"`
+	Condition               *string    `json:"condition,omitempty"`
+	CreatedAt               time.Time  `json:"created_at"`
+	CredentialReferenceName *string    `json:"credential_reference_name,omitempty"`
+	DeletedAt               *time.Time `json:"deleted_at,omitempty"`
+	DisplayName             *string    `json:"display_name,omitempty"`
+	Duration                *string    `json:"duration,omitempty"`
+	ExpiresAt               *time.Time `json:"expires_at,omitempty"`
+	ID                      string     `json:"id"`
+	Name                    string     `json:"name"`
+	ProviderID              *string    `json:"provider_id,omitempty"`
+	UpdatedAt               *time.Time `json:"updated_at,omitempty"`
+	VoucherCode             *string    `json:"voucher_code,omitempty"`
 }
 
 // OrganizationOptions defines model for organization_options.
 type OrganizationOptions struct {
-	DisplayName *string `json:"display_name,omitempty"`
-	Duration    *string `json:"duration,omitempty"`
-	VoucherCode *string `json:"voucher_code,omitempty"`
+	CredentialReferenceName *string `json:"credential_reference_name,omitempty"`
+	DisplayName             *string `json:"display_name,omitempty"`
+	Duration                *string `json:"duration,omitempty"`
+	VoucherCode             *string `json:"voucher_code,omitempty"`
 }
 
 // StorageResource defines model for storage_resource.
