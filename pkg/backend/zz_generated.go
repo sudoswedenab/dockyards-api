@@ -129,7 +129,7 @@ type ServerInterface interface {
 	// (GET /v1/orgs/{organization_name}/credentials/{credential_name})
 	GetOrganizationCredential(w http.ResponseWriter, r *http.Request, organizationName string, credentialName string)
 
-	// (PUT /v1/orgs/{organization_name}/credentials/{credential_name})
+	// (PATCH /v1/orgs/{organization_name}/credentials/{credential_name})
 	UpdateOrganizationCredential(w http.ResponseWriter, r *http.Request, organizationName string, credentialName string)
 
 	// (GET /v1/orgs/{organization_name}/ip-pools)
@@ -1212,7 +1212,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("POST "+options.BaseURL+"/v1/orgs/{organization_name}/credentials", wrapper.CreateOrganizationCredential)
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/orgs/{organization_name}/credentials/{credential_name}", wrapper.DeleteOrganizationCredential)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/credentials/{credential_name}", wrapper.GetOrganizationCredential)
-	m.HandleFunc("PUT "+options.BaseURL+"/v1/orgs/{organization_name}/credentials/{credential_name}", wrapper.UpdateOrganizationCredential)
+	m.HandleFunc("PATCH "+options.BaseURL+"/v1/orgs/{organization_name}/credentials/{credential_name}", wrapper.UpdateOrganizationCredential)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/ip-pools", wrapper.GetIPPools)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/refresh", wrapper.Refresh)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/whoami", wrapper.Whoami)

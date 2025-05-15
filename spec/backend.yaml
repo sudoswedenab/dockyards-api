@@ -536,7 +536,7 @@ paths:
         204: {}
         401: {}
         500: {}
-    put:
+    patch:
       operationId: updateOrganizationCredential
       parameters:
       - name: organization_name
