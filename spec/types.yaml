@@ -207,19 +207,36 @@ components:
           type: string
         name:
           type: string
-        organization:
+        data:
+          type: object
+          additionalProperties:
+            type: string
+            format: byte
+        credential_template_name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+    credential_options:
+      properties:
+        name:
+          type: string
+        credential_template_name:
           type: string
         data:
           type: object
           additionalProperties:
             type: string
             format: byte
-        credential_template:
-          type: string
-      required:
-      - id
-      - name
-      - organization
     user:
       properties:
         id:

@@ -491,7 +491,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: 'types.yaml#/components/schemas/credential'
+              $ref: 'types.yaml#/components/schemas/credential_options'
       responses:
         201:
           content:
@@ -533,7 +533,7 @@ paths:
         schema:
           type: string
       responses:
-        204: {}
+        202: {}
         401: {}
         500: {}
     patch:
@@ -554,9 +554,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: 'types.yaml#/components/schemas/credential'
+              $ref: 'types.yaml#/components/schemas/credential_options'
       responses:
-        200: {}
+        202: {}
         401: {}
         500: {}
     get:

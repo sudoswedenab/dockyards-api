@@ -46,10 +46,10 @@ type CreateClusterWorkloadJSONRequestBody = externalRef0.WorkloadOptions
 type UpdateClusterWorkloadJSONRequestBody = externalRef0.WorkloadOptions
 
 // CreateOrganizationCredentialJSONRequestBody defines body for CreateOrganizationCredential for application/json ContentType.
-type CreateOrganizationCredentialJSONRequestBody = externalRef0.Credential
+type CreateOrganizationCredentialJSONRequestBody = externalRef0.CredentialOptions
 
 // UpdateOrganizationCredentialJSONRequestBody defines body for UpdateOrganizationCredential for application/json ContentType.
-type UpdateOrganizationCredentialJSONRequestBody = externalRef0.Credential
+type UpdateOrganizationCredentialJSONRequestBody = externalRef0.CredentialOptions
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {

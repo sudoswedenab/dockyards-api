@@ -52,10 +52,10 @@ type CreateClusterWorkloadJSONRequestBody = externalRef0.WorkloadOptions
 type UpdateClusterWorkloadJSONRequestBody = externalRef0.WorkloadOptions
 
 // CreateOrganizationCredentialJSONRequestBody defines body for CreateOrganizationCredential for application/json ContentType.
-type CreateOrganizationCredentialJSONRequestBody = externalRef0.Credential
+type CreateOrganizationCredentialJSONRequestBody = externalRef0.CredentialOptions
 
 // UpdateOrganizationCredentialJSONRequestBody defines body for UpdateOrganizationCredential for application/json ContentType.
-type UpdateOrganizationCredentialJSONRequestBody = externalRef0.Credential
+type UpdateOrganizationCredentialJSONRequestBody = externalRef0.CredentialOptions
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -1849,7 +1849,7 @@ func NewUpdateOrganizationCredentialRequestWithBody(server string, organizationN
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}

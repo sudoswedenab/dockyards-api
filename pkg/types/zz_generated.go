@@ -42,11 +42,20 @@ type ClusterOptions struct {
 
 // Credential defines model for credential.
 type Credential struct {
-	CredentialTemplate *string            `json:"credential_template,omitempty"`
-	Data               *map[string][]byte `json:"data,omitempty"`
-	ID                 string             `json:"id"`
-	Name               string             `json:"name"`
-	Organization       string             `json:"organization"`
+	CreatedAt              *time.Time         `json:"created_at,omitempty"`
+	CredentialTemplateName *string            `json:"credential_template_name,omitempty"`
+	Data                   *map[string][]byte `json:"data,omitempty"`
+	DeletedAt              *time.Time         `json:"deleted_at,omitempty"`
+	ID                     string             `json:"id"`
+	Name                   string             `json:"name"`
+	UpdatedAt              *time.Time         `json:"updated_at,omitempty"`
+}
+
+// CredentialOptions defines model for credential_options.
+type CredentialOptions struct {
+	CredentialTemplateName *string            `json:"credential_template_name,omitempty"`
+	Data                   *map[string][]byte `json:"data,omitempty"`
+	Name                   *string            `json:"name,omitempty"`
 }
 
 // IdentityProvider defines model for identity_provider.
