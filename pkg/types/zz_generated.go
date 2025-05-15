@@ -9,22 +9,22 @@ import (
 
 // Cluster defines model for cluster.
 type Cluster struct {
-	AllocateInternalIP *bool       `json:"allocate_internal_ip,omitempty"`
-	APIEndpoint        *string     `json:"api_endpoint,omitempty"`
-	Condition          *string     `json:"condition,omitempty"`
-	CreatedAt          time.Time   `json:"created_at"`
-	DeletedAt          *time.Time  `json:"deleted_at,omitempty"`
-	DNSZones           *[]string   `json:"dns_zones,omitempty"`
-	Duration           *string     `json:"duration,omitempty"`
-	ExpiresAt          *time.Time  `json:"expires_at,omitempty"`
-	ID                 string      `json:"id"`
-	Name               string      `json:"name"`
-	NodeCount          *int        `json:"node_count,omitempty"`
-	NodePools          *[]NodePool `json:"node_pools,omitempty"`
-	Organization       *string     `json:"organization,omitempty"`
-	State              *string     `json:"state,omitempty"`
-	UpdatedAt          *time.Time  `json:"updated_at,omitempty"`
-	Version            *string     `json:"version,omitempty"`
+	AllocateInternalIP *bool      `json:"allocate_internal_ip,omitempty"`
+	APIEndpoint        *string    `json:"api_endpoint,omitempty"`
+	Condition          *string    `json:"condition,omitempty"`
+	CreatedAt          time.Time  `json:"created_at"`
+	DeletedAt          *time.Time `json:"deleted_at,omitempty"`
+	DNSZones           *[]string  `json:"dns_zones,omitempty"`
+	Duration           *string    `json:"duration,omitempty"`
+	ExpiresAt          *time.Time `json:"expires_at,omitempty"`
+	ID                 string     `json:"id"`
+	Name               string     `json:"name"`
+	NodePoolsCount     *int       `json:"node_pools_count,omitempty"`
+	NodesCount         *int       `json:"nodes_count,omitempty"`
+	Organization       *string    `json:"organization,omitempty"`
+	State              *string    `json:"state,omitempty"`
+	UpdatedAt          *time.Time `json:"updated_at,omitempty"`
+	Version            *string    `json:"version,omitempty"`
 }
 
 // ClusterOptions defines model for cluster_options.

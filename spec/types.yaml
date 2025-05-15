@@ -165,14 +165,10 @@ components:
           type: string
         organization:
           type: string
-        node_count:
+        nodes_count:
           type: integer
         state:
           type: string
-        node_pools:
-          type: array
-          items:
-            $ref: '#/components/schemas/node_pool'
         version:
           type: string
         created_at:
@@ -199,6 +195,8 @@ components:
         expires_at:
           type: string
           format: date-time
+        node_pools_count:
+          type: integer
       required:
       - id
       - name
