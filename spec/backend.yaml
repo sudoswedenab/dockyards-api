@@ -124,6 +124,29 @@ paths:
         202: {}
         401: {}
         500: {}
+    patch:
+      operationId: updateOrganization
+      parameters:
+      - name: organization_name
+        required: true
+        in: path
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/organization_options'
+      responses:
+        202: {}
+        401: {}
+        422:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/unprocessable_entity_errors'
+        500: {}
   /v1/orgs/{organization_name}/clusters:
     post:
       operationId: createCluster
