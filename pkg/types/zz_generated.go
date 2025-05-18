@@ -65,6 +65,28 @@ type IdentityProvider struct {
 	Name        string  `json:"name"`
 }
 
+// Invitation defines model for invitation.
+type Invitation struct {
+	CreatedAt               time.Time  `json:"created_at"`
+	DeletedAt               *time.Time `json:"deleted_at,omitempty"`
+	Duration                *string    `json:"duration,omitempty"`
+	Email                   *string    `json:"email,omitempty"`
+	ExpiresAt               *time.Time `json:"expires_at,omitempty"`
+	ID                      string     `json:"id"`
+	Name                    string     `json:"name"`
+	OrganizationDisplayName *string    `json:"organization_display_name,omitempty"`
+	OrganizationName        *string    `json:"organization_name,omitempty"`
+	Role                    string     `json:"role"`
+	UpdatedAt               *time.Time `json:"updated_at,omitempty"`
+}
+
+// InvitationOptions defines model for invitation_options.
+type InvitationOptions struct {
+	Duration *string `json:"duration,omitempty"`
+	Email    string  `json:"email"`
+	Role     string  `json:"role"`
+}
+
 // IPPool defines model for ip_pool.
 type IPPool struct {
 	Addresses *[]string `json:"addresses,omitempty"`
