@@ -54,6 +54,9 @@ type CreateOrganizationCredentialJSONRequestBody = externalRef0.CredentialOption
 // UpdateOrganizationCredentialJSONRequestBody defines body for UpdateOrganizationCredential for application/json ContentType.
 type UpdateOrganizationCredentialJSONRequestBody = externalRef0.CredentialOptions
 
+// CreateOrganizationInvitationJSONRequestBody defines body for CreateOrganizationInvitation for application/json ContentType.
+type CreateOrganizationInvitationJSONRequestBody = externalRef0.InvitationOptions
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
@@ -68,6 +71,15 @@ type ServerInterface interface {
 
 	// (POST /v1/clusters/{cluster_id}/node-pools)
 	CreateNodePool(w http.ResponseWriter, r *http.Request, clusterID string)
+
+	// (GET /v1/invitations)
+	GetInvitations(w http.ResponseWriter, r *http.Request)
+
+	// (DELETE /v1/invitations/{organization_name})
+	DeleteInvitation(w http.ResponseWriter, r *http.Request, organizationName string)
+
+	// (PATCH /v1/invitations/{organization_name})
+	UpdateInvitation(w http.ResponseWriter, r *http.Request, organizationName string)
 
 	// (POST /v1/login)
 	Login(w http.ResponseWriter, r *http.Request)
@@ -137,6 +149,15 @@ type ServerInterface interface {
 
 	// (PATCH /v1/orgs/{organization_name}/credentials/{credential_name})
 	UpdateOrganizationCredential(w http.ResponseWriter, r *http.Request, organizationName string, credentialName string)
+
+	// (GET /v1/orgs/{organization_name}/invitations)
+	GetOrganizationInvitations(w http.ResponseWriter, r *http.Request, organizationName string)
+
+	// (POST /v1/orgs/{organization_name}/invitations)
+	CreateOrganizationInvitation(w http.ResponseWriter, r *http.Request, organizationName string)
+
+	// (DELETE /v1/orgs/{organization_name}/invitations/{invitation_name})
+	DeleteOrganizationInvitation(w http.ResponseWriter, r *http.Request, organizationName string, invitationName string)
 
 	// (GET /v1/orgs/{organization_name}/ip-pools)
 	GetIPPools(w http.ResponseWriter, r *http.Request, organizationName string)
@@ -249,6 +270,79 @@ func (siw *ServerInterfaceWrapper) CreateNodePool(w http.ResponseWriter, r *http
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateNodePool(w, r, clusterID)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetInvitations operation middleware
+func (siw *ServerInterfaceWrapper) GetInvitations(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetInvitations(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// DeleteInvitation operation middleware
+func (siw *ServerInterfaceWrapper) DeleteInvitation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "organization_name" -------------
+	var organizationName string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "organization_name", r.PathValue("organization_name"), &organizationName, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "organization_name", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteInvitation(w, r, organizationName)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// UpdateInvitation operation middleware
+func (siw *ServerInterfaceWrapper) UpdateInvitation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "organization_name" -------------
+	var organizationName string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "organization_name", r.PathValue("organization_name"), &organizationName, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "organization_name", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateInvitation(w, r, organizationName)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1047,6 +1141,99 @@ func (siw *ServerInterfaceWrapper) UpdateOrganizationCredential(w http.ResponseW
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
+// GetOrganizationInvitations operation middleware
+func (siw *ServerInterfaceWrapper) GetOrganizationInvitations(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "organization_name" -------------
+	var organizationName string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "organization_name", r.PathValue("organization_name"), &organizationName, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "organization_name", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetOrganizationInvitations(w, r, organizationName)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// CreateOrganizationInvitation operation middleware
+func (siw *ServerInterfaceWrapper) CreateOrganizationInvitation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "organization_name" -------------
+	var organizationName string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "organization_name", r.PathValue("organization_name"), &organizationName, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "organization_name", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateOrganizationInvitation(w, r, organizationName)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// DeleteOrganizationInvitation operation middleware
+func (siw *ServerInterfaceWrapper) DeleteOrganizationInvitation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "organization_name" -------------
+	var organizationName string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "organization_name", r.PathValue("organization_name"), &organizationName, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "organization_name", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "invitation_name" -------------
+	var invitationName string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "invitation_name", r.PathValue("invitation_name"), &invitationName, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "invitation_name", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteOrganizationInvitation(w, r, organizationName, invitationName)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
 // GetIPPools operation middleware
 func (siw *ServerInterfaceWrapper) GetIPPools(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1225,6 +1412,9 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/clusters/{cluster_id}", wrapper.DeleteCluster)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/clusters/{cluster_id}", wrapper.GetCluster)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/clusters/{cluster_id}/node-pools", wrapper.CreateNodePool)
+	m.HandleFunc("GET "+options.BaseURL+"/v1/invitations", wrapper.GetInvitations)
+	m.HandleFunc("DELETE "+options.BaseURL+"/v1/invitations/{organization_name}", wrapper.DeleteInvitation)
+	m.HandleFunc("PATCH "+options.BaseURL+"/v1/invitations/{organization_name}", wrapper.UpdateInvitation)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/login", wrapper.Login)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs", wrapper.GetOrganizations)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/orgs", wrapper.CreateOrganization)
@@ -1248,6 +1438,9 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/orgs/{organization_name}/credentials/{credential_name}", wrapper.DeleteOrganizationCredential)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/credentials/{credential_name}", wrapper.GetOrganizationCredential)
 	m.HandleFunc("PATCH "+options.BaseURL+"/v1/orgs/{organization_name}/credentials/{credential_name}", wrapper.UpdateOrganizationCredential)
+	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/invitations", wrapper.GetOrganizationInvitations)
+	m.HandleFunc("POST "+options.BaseURL+"/v1/orgs/{organization_name}/invitations", wrapper.CreateOrganizationInvitation)
+	m.HandleFunc("DELETE "+options.BaseURL+"/v1/orgs/{organization_name}/invitations/{invitation_name}", wrapper.DeleteOrganizationInvitation)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/ip-pools", wrapper.GetIPPools)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/refresh", wrapper.Refresh)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/whoami", wrapper.Whoami)

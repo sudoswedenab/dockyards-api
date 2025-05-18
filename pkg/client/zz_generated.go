@@ -60,6 +60,9 @@ type CreateOrganizationCredentialJSONRequestBody = externalRef0.CredentialOption
 // UpdateOrganizationCredentialJSONRequestBody defines body for UpdateOrganizationCredential for application/json ContentType.
 type UpdateOrganizationCredentialJSONRequestBody = externalRef0.CredentialOptions
 
+// CreateOrganizationInvitationJSONRequestBody defines body for CreateOrganizationInvitation for application/json ContentType.
+type CreateOrganizationInvitationJSONRequestBody = externalRef0.InvitationOptions
+
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
 
@@ -146,6 +149,15 @@ type ClientInterface interface {
 	CreateNodePoolWithBody(ctx context.Context, clusterID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateNodePool(ctx context.Context, clusterID string, body CreateNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetInvitations request
+	GetInvitations(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteInvitation request
+	DeleteInvitation(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateInvitation request
+	UpdateInvitation(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// LoginWithBody request with any body
 	LoginWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -238,6 +250,17 @@ type ClientInterface interface {
 
 	UpdateOrganizationCredential(ctx context.Context, organizationName string, credentialName string, body UpdateOrganizationCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetOrganizationInvitations request
+	GetOrganizationInvitations(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateOrganizationInvitationWithBody request with any body
+	CreateOrganizationInvitationWithBody(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateOrganizationInvitation(ctx context.Context, organizationName string, body CreateOrganizationInvitationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteOrganizationInvitation request
+	DeleteOrganizationInvitation(ctx context.Context, organizationName string, invitationName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetIPPools request
 	GetIPPools(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -298,6 +321,42 @@ func (c *Client) CreateNodePoolWithBody(ctx context.Context, clusterID string, c
 
 func (c *Client) CreateNodePool(ctx context.Context, clusterID string, body CreateNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateNodePoolRequest(c.Server, clusterID, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetInvitations(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetInvitationsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteInvitation(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteInvitationRequest(c.Server, organizationName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateInvitation(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateInvitationRequest(c.Server, organizationName)
 	if err != nil {
 		return nil, err
 	}
@@ -716,6 +775,54 @@ func (c *Client) UpdateOrganizationCredential(ctx context.Context, organizationN
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetOrganizationInvitations(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetOrganizationInvitationsRequest(c.Server, organizationName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateOrganizationInvitationWithBody(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateOrganizationInvitationRequestWithBody(c.Server, organizationName, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateOrganizationInvitation(ctx context.Context, organizationName string, body CreateOrganizationInvitationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateOrganizationInvitationRequest(c.Server, organizationName, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteOrganizationInvitation(ctx context.Context, organizationName string, invitationName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteOrganizationInvitationRequest(c.Server, organizationName, invitationName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetIPPools(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetIPPoolsRequest(c.Server, organizationName)
 	if err != nil {
@@ -890,6 +997,101 @@ func NewCreateNodePoolRequestWithBody(server string, clusterID string, contentTy
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetInvitationsRequest generates requests for GetInvitations
+func NewGetInvitationsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/invitations")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteInvitationRequest generates requests for DeleteInvitation
+func NewDeleteInvitationRequest(server string, organizationName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/invitations/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateInvitationRequest generates requests for UpdateInvitation
+func NewUpdateInvitationRequest(server string, organizationName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/invitations/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -1938,6 +2140,128 @@ func NewUpdateOrganizationCredentialRequestWithBody(server string, organizationN
 	return req, nil
 }
 
+// NewGetOrganizationInvitationsRequest generates requests for GetOrganizationInvitations
+func NewGetOrganizationInvitationsRequest(server string, organizationName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/orgs/%s/invitations", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateOrganizationInvitationRequest calls the generic CreateOrganizationInvitation builder with application/json body
+func NewCreateOrganizationInvitationRequest(server string, organizationName string, body CreateOrganizationInvitationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateOrganizationInvitationRequestWithBody(server, organizationName, "application/json", bodyReader)
+}
+
+// NewCreateOrganizationInvitationRequestWithBody generates requests for CreateOrganizationInvitation with any type of body
+func NewCreateOrganizationInvitationRequestWithBody(server string, organizationName string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/orgs/%s/invitations", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteOrganizationInvitationRequest generates requests for DeleteOrganizationInvitation
+func NewDeleteOrganizationInvitationRequest(server string, organizationName string, invitationName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "invitation_name", runtime.ParamLocationPath, invitationName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/orgs/%s/invitations/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetIPPoolsRequest generates requests for GetIPPools
 func NewGetIPPoolsRequest(server string, organizationName string) (*http.Request, error) {
 	var err error
@@ -2083,6 +2407,15 @@ type ClientWithResponsesInterface interface {
 
 	CreateNodePoolWithResponse(ctx context.Context, clusterID string, body CreateNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateNodePoolResponse, error)
 
+	// GetInvitationsWithResponse request
+	GetInvitationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetInvitationsResponse, error)
+
+	// DeleteInvitationWithResponse request
+	DeleteInvitationWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*DeleteInvitationResponse, error)
+
+	// UpdateInvitationWithResponse request
+	UpdateInvitationWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*UpdateInvitationResponse, error)
+
 	// LoginWithBodyWithResponse request with any body
 	LoginWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*LoginResponse, error)
 
@@ -2173,6 +2506,17 @@ type ClientWithResponsesInterface interface {
 	UpdateOrganizationCredentialWithBodyWithResponse(ctx context.Context, organizationName string, credentialName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateOrganizationCredentialResponse, error)
 
 	UpdateOrganizationCredentialWithResponse(ctx context.Context, organizationName string, credentialName string, body UpdateOrganizationCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateOrganizationCredentialResponse, error)
+
+	// GetOrganizationInvitationsWithResponse request
+	GetOrganizationInvitationsWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*GetOrganizationInvitationsResponse, error)
+
+	// CreateOrganizationInvitationWithBodyWithResponse request with any body
+	CreateOrganizationInvitationWithBodyWithResponse(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOrganizationInvitationResponse, error)
+
+	CreateOrganizationInvitationWithResponse(ctx context.Context, organizationName string, body CreateOrganizationInvitationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOrganizationInvitationResponse, error)
+
+	// DeleteOrganizationInvitationWithResponse request
+	DeleteOrganizationInvitationWithResponse(ctx context.Context, organizationName string, invitationName string, reqEditors ...RequestEditorFn) (*DeleteOrganizationInvitationResponse, error)
 
 	// GetIPPoolsWithResponse request
 	GetIPPoolsWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*GetIPPoolsResponse, error)
@@ -2265,6 +2609,70 @@ func (r CreateNodePoolResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateNodePoolResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetInvitationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]externalRef0.Invitation
+}
+
+// Status returns HTTPResponse.Status
+func (r GetInvitationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetInvitationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteInvitationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteInvitationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteInvitationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateInvitationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateInvitationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateInvitationResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2776,6 +3184,72 @@ func (r UpdateOrganizationCredentialResponse) StatusCode() int {
 	return 0
 }
 
+type GetOrganizationInvitationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]externalRef0.Invitation
+}
+
+// Status returns HTTPResponse.Status
+func (r GetOrganizationInvitationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetOrganizationInvitationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateOrganizationInvitationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *[]externalRef0.Invitation
+	JSON422      *externalRef0.UnprocessableEntityErrors
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateOrganizationInvitationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateOrganizationInvitationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteOrganizationInvitationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteOrganizationInvitationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteOrganizationInvitationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetIPPoolsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2884,6 +3358,33 @@ func (c *ClientWithResponses) CreateNodePoolWithResponse(ctx context.Context, cl
 		return nil, err
 	}
 	return ParseCreateNodePoolResponse(rsp)
+}
+
+// GetInvitationsWithResponse request returning *GetInvitationsResponse
+func (c *ClientWithResponses) GetInvitationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetInvitationsResponse, error) {
+	rsp, err := c.GetInvitations(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetInvitationsResponse(rsp)
+}
+
+// DeleteInvitationWithResponse request returning *DeleteInvitationResponse
+func (c *ClientWithResponses) DeleteInvitationWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*DeleteInvitationResponse, error) {
+	rsp, err := c.DeleteInvitation(ctx, organizationName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteInvitationResponse(rsp)
+}
+
+// UpdateInvitationWithResponse request returning *UpdateInvitationResponse
+func (c *ClientWithResponses) UpdateInvitationWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*UpdateInvitationResponse, error) {
+	rsp, err := c.UpdateInvitation(ctx, organizationName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateInvitationResponse(rsp)
 }
 
 // LoginWithBodyWithResponse request with arbitrary body returning *LoginResponse
@@ -3181,6 +3682,41 @@ func (c *ClientWithResponses) UpdateOrganizationCredentialWithResponse(ctx conte
 	return ParseUpdateOrganizationCredentialResponse(rsp)
 }
 
+// GetOrganizationInvitationsWithResponse request returning *GetOrganizationInvitationsResponse
+func (c *ClientWithResponses) GetOrganizationInvitationsWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*GetOrganizationInvitationsResponse, error) {
+	rsp, err := c.GetOrganizationInvitations(ctx, organizationName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetOrganizationInvitationsResponse(rsp)
+}
+
+// CreateOrganizationInvitationWithBodyWithResponse request with arbitrary body returning *CreateOrganizationInvitationResponse
+func (c *ClientWithResponses) CreateOrganizationInvitationWithBodyWithResponse(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOrganizationInvitationResponse, error) {
+	rsp, err := c.CreateOrganizationInvitationWithBody(ctx, organizationName, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateOrganizationInvitationResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateOrganizationInvitationWithResponse(ctx context.Context, organizationName string, body CreateOrganizationInvitationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOrganizationInvitationResponse, error) {
+	rsp, err := c.CreateOrganizationInvitation(ctx, organizationName, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateOrganizationInvitationResponse(rsp)
+}
+
+// DeleteOrganizationInvitationWithResponse request returning *DeleteOrganizationInvitationResponse
+func (c *ClientWithResponses) DeleteOrganizationInvitationWithResponse(ctx context.Context, organizationName string, invitationName string, reqEditors ...RequestEditorFn) (*DeleteOrganizationInvitationResponse, error) {
+	rsp, err := c.DeleteOrganizationInvitation(ctx, organizationName, invitationName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteOrganizationInvitationResponse(rsp)
+}
+
 // GetIPPoolsWithResponse request returning *GetIPPoolsResponse
 func (c *ClientWithResponses) GetIPPoolsWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*GetIPPoolsResponse, error) {
 	rsp, err := c.GetIPPools(ctx, organizationName, reqEditors...)
@@ -3297,6 +3833,64 @@ func ParseCreateNodePoolResponse(rsp *http.Response) (*CreateNodePoolResponse, e
 		}
 		response.JSON201 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseGetInvitationsResponse parses an HTTP response from a GetInvitationsWithResponse call
+func ParseGetInvitationsResponse(rsp *http.Response) (*GetInvitationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetInvitationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []externalRef0.Invitation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteInvitationResponse parses an HTTP response from a DeleteInvitationWithResponse call
+func ParseDeleteInvitationResponse(rsp *http.Response) (*DeleteInvitationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteInvitationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseUpdateInvitationResponse parses an HTTP response from a UpdateInvitationWithResponse call
+func ParseUpdateInvitationResponse(rsp *http.Response) (*UpdateInvitationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateInvitationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
@@ -3868,6 +4462,81 @@ func ParseUpdateOrganizationCredentialResponse(rsp *http.Response) (*UpdateOrgan
 	}
 
 	response := &UpdateOrganizationCredentialResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetOrganizationInvitationsResponse parses an HTTP response from a GetOrganizationInvitationsWithResponse call
+func ParseGetOrganizationInvitationsResponse(rsp *http.Response) (*GetOrganizationInvitationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetOrganizationInvitationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []externalRef0.Invitation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateOrganizationInvitationResponse parses an HTTP response from a CreateOrganizationInvitationWithResponse call
+func ParseCreateOrganizationInvitationResponse(rsp *http.Response) (*CreateOrganizationInvitationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateOrganizationInvitationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest []externalRef0.Invitation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest externalRef0.UnprocessableEntityErrors
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteOrganizationInvitationResponse parses an HTTP response from a DeleteOrganizationInvitationWithResponse call
+func ParseDeleteOrganizationInvitationResponse(rsp *http.Response) (*DeleteOrganizationInvitationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteOrganizationInvitationResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

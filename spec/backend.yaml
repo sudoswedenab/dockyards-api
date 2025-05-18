@@ -666,6 +666,110 @@ paths:
         401: {}
         409: {}
         500: {}
+  /v1/invitations:
+    get:
+      operationId: getInvitations
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'types.yaml#/components/schemas/invitation'
+        401: {}
+        500: {}
+  /v1/invitations/{organization_name}:
+    delete:
+      operationId: deleteInvitation
+      parameters:
+      - name: organization_name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        202: {}
+        401: {}
+        500: {}
+    patch:
+      operationId: updateInvitation
+      parameters:
+      - name: organization_name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        202: {}
+        401: {}
+        500: {}
+  /v1/orgs/{organization_name}/invitations:
+    get:
+      operationId: getOrganizationInvitations
+      parameters:
+      - name: organization_name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'types.yaml#/components/schemas/invitation'
+        401: {}
+        500: {}
+    post:
+      operationId: createOrganizationInvitation
+      parameters:
+      - name: organization_name
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/invitation_options'
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'types.yaml#/components/schemas/invitation'
+        401: {}
+        422:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/unprocessable_entity_errors'
+        500: {}
+  /v1/orgs/{organization_name}/invitations/{invitation_name}:
+    delete:
+      operationId: deleteOrganizationInvitation
+      parameters:
+      - name: organization_name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: invitation_name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        202: {}
+        401: {}
+        500: {}
 components:
   securitySchemas:
     bearerAuth:
