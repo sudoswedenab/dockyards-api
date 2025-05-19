@@ -21,6 +21,9 @@ const (
 // CreateNodePoolJSONRequestBody defines body for CreateNodePool for application/json ContentType.
 type CreateNodePoolJSONRequestBody = externalRef0.NodePoolOptions
 
+// UpdateInvitationJSONRequestBody defines body for UpdateInvitation for application/json ContentType.
+type UpdateInvitationJSONRequestBody = externalRef0.InvitationOptions
+
 // LoginJSONRequestBody defines body for Login for application/json ContentType.
 type LoginJSONRequestBody = externalRef0.Login
 

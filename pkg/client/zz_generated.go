@@ -27,6 +27,9 @@ const (
 // CreateNodePoolJSONRequestBody defines body for CreateNodePool for application/json ContentType.
 type CreateNodePoolJSONRequestBody = externalRef0.NodePoolOptions
 
+// UpdateInvitationJSONRequestBody defines body for UpdateInvitation for application/json ContentType.
+type UpdateInvitationJSONRequestBody = externalRef0.InvitationOptions
+
 // LoginJSONRequestBody defines body for Login for application/json ContentType.
 type LoginJSONRequestBody = externalRef0.Login
 
@@ -156,8 +159,10 @@ type ClientInterface interface {
 	// DeleteInvitation request
 	DeleteInvitation(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// UpdateInvitation request
-	UpdateInvitation(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// UpdateInvitationWithBody request with any body
+	UpdateInvitationWithBody(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateInvitation(ctx context.Context, organizationName string, body UpdateInvitationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// LoginWithBody request with any body
 	LoginWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -355,8 +360,20 @@ func (c *Client) DeleteInvitation(ctx context.Context, organizationName string, 
 	return c.Client.Do(req)
 }
 
-func (c *Client) UpdateInvitation(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateInvitationRequest(c.Server, organizationName)
+func (c *Client) UpdateInvitationWithBody(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateInvitationRequestWithBody(c.Server, organizationName, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateInvitation(ctx context.Context, organizationName string, body UpdateInvitationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateInvitationRequest(c.Server, organizationName, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1062,8 +1079,19 @@ func NewDeleteInvitationRequest(server string, organizationName string) (*http.R
 	return req, nil
 }
 
-// NewUpdateInvitationRequest generates requests for UpdateInvitation
-func NewUpdateInvitationRequest(server string, organizationName string) (*http.Request, error) {
+// NewUpdateInvitationRequest calls the generic UpdateInvitation builder with application/json body
+func NewUpdateInvitationRequest(server string, organizationName string, body UpdateInvitationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateInvitationRequestWithBody(server, organizationName, "application/json", bodyReader)
+}
+
+// NewUpdateInvitationRequestWithBody generates requests for UpdateInvitation with any type of body
+func NewUpdateInvitationRequestWithBody(server string, organizationName string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -1088,10 +1116,12 @@ func NewUpdateInvitationRequest(server string, organizationName string) (*http.R
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PATCH", queryURL.String(), nil)
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -2413,8 +2443,10 @@ type ClientWithResponsesInterface interface {
 	// DeleteInvitationWithResponse request
 	DeleteInvitationWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*DeleteInvitationResponse, error)
 
-	// UpdateInvitationWithResponse request
-	UpdateInvitationWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*UpdateInvitationResponse, error)
+	// UpdateInvitationWithBodyWithResponse request with any body
+	UpdateInvitationWithBodyWithResponse(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateInvitationResponse, error)
+
+	UpdateInvitationWithResponse(ctx context.Context, organizationName string, body UpdateInvitationJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateInvitationResponse, error)
 
 	// LoginWithBodyWithResponse request with any body
 	LoginWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*LoginResponse, error)
@@ -3378,9 +3410,17 @@ func (c *ClientWithResponses) DeleteInvitationWithResponse(ctx context.Context, 
 	return ParseDeleteInvitationResponse(rsp)
 }
 
-// UpdateInvitationWithResponse request returning *UpdateInvitationResponse
-func (c *ClientWithResponses) UpdateInvitationWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*UpdateInvitationResponse, error) {
-	rsp, err := c.UpdateInvitation(ctx, organizationName, reqEditors...)
+// UpdateInvitationWithBodyWithResponse request with arbitrary body returning *UpdateInvitationResponse
+func (c *ClientWithResponses) UpdateInvitationWithBodyWithResponse(ctx context.Context, organizationName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateInvitationResponse, error) {
+	rsp, err := c.UpdateInvitationWithBody(ctx, organizationName, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateInvitationResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateInvitationWithResponse(ctx context.Context, organizationName string, body UpdateInvitationJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateInvitationResponse, error) {
+	rsp, err := c.UpdateInvitation(ctx, organizationName, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

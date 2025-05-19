@@ -700,6 +700,12 @@ paths:
         required: true
         schema:
           type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/invitation_options'
       responses:
         202: {}
         401: {}
