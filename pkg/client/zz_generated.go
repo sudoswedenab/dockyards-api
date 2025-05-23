@@ -31,7 +31,7 @@ type CreateNodePoolJSONRequestBody = externalRef0.NodePoolOptions
 type UpdateInvitationJSONRequestBody = externalRef0.InvitationOptions
 
 // LoginJSONRequestBody defines body for Login for application/json ContentType.
-type LoginJSONRequestBody = externalRef0.Login
+type LoginJSONRequestBody = externalRef0.LoginOptions
 
 // CreateOrganizationJSONRequestBody defines body for CreateOrganization for application/json ContentType.
 type CreateOrganizationJSONRequestBody = externalRef0.OrganizationOptions

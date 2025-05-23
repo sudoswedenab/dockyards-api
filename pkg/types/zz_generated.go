@@ -99,8 +99,8 @@ type KubeconfigOptions struct {
 	Duration *string `json:"duration,omitempty"`
 }
 
-// Login defines model for login.
-type Login struct {
+// LoginOptions defines model for login_options.
+type LoginOptions struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
