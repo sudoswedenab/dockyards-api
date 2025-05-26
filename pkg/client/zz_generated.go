@@ -2714,7 +2714,7 @@ func (r UpdateInvitationResponse) StatusCode() int {
 type LoginResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *externalRef0.Tokens
+	JSON201      *externalRef0.Tokens
 	JSON422      *externalRef0.UnprocessableEntityErrors
 }
 
@@ -3950,12 +3950,12 @@ func ParseLoginResponse(rsp *http.Response) (*LoginResponse, error) {
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
 		var dest externalRef0.Tokens
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
-		response.JSON200 = &dest
+		response.JSON201 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
 		var dest externalRef0.UnprocessableEntityErrors
