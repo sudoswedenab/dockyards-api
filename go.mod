@@ -1,4 +1,4 @@
-module bitbucket.org/sudosweden/dockyards-api
+module github.com/sudoswedenab/dockyards-api
 
 go 1.22.3
 

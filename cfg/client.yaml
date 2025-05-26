@@ -20,4 +20,4 @@ output: pkg/client/zz_generated.go
 output-options:
   name-normalizer: ToCamelCaseWithInitialisms
 import-mapping:
-  types.yaml: bitbucket.org/sudosweden/dockyards-api/pkg/types
+  types.yaml: github.com/sudoswedenab/dockyards-api/pkg/types

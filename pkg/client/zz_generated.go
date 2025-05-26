@@ -15,9 +15,9 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	externalRef0 "bitbucket.org/sudosweden/dockyards-api/pkg/types"
 	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
+	externalRef0 "github.com/sudoswedenab/dockyards-api/pkg/types"
 )
 
 const (

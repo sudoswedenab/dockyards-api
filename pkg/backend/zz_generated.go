@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"net/http"
 
-	externalRef0 "bitbucket.org/sudosweden/dockyards-api/pkg/types"
 	"github.com/oapi-codegen/runtime"
+	externalRef0 "github.com/sudoswedenab/dockyards-api/pkg/types"
 )
 
 const (
