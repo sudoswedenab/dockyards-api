@@ -222,6 +222,7 @@ type Workload struct {
 	Namespace            *string                 `json:"namespace,omitempty"`
 	Provenience          *string                 `json:"provenience,omitempty"`
 	UpdatedAt            *time.Time              `json:"updated_at,omitempty"`
+	URLs                 *[]string               `json:"urls,omitempty"`
 	WorkloadTemplateName *string                 `json:"workload_template_name,omitempty"`
 }
 

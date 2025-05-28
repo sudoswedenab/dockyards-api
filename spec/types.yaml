@@ -331,6 +331,11 @@ components:
           format: date-time
         condition:
           type: string
+        urls:
+          type: array
+          items:
+            type: string
+          x-go-name: URLs
       required:
       - id
       - name
