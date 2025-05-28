@@ -792,6 +792,30 @@ paths:
         202: {}
         401: {}
         500: {}
+  /v1/orgs/{organization_name}/clusters/{cluster_name}/nodes:
+    get:
+      operationId: getClusterNodes
+      parameters:
+      - name: organization_name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: cluster_name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'types.yaml#/components/schemas/node'
+        401: {}
+        500: {}
 components:
   securitySchemas:
     bearerAuth:
