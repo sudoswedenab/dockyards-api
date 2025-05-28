@@ -281,12 +281,27 @@ components:
           type: string
         name:
           type: string
-        state:
+        condition:
           type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+        provider_id:
+          type: string
+        system_info:
+          type: object
+          additionalProperties:
+            type: string
       required:
       - id
       - name
-      - state
+      - created_at
     storage_resource:
       properties:
         name:
