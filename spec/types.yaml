@@ -455,3 +455,23 @@ components:
       required:
       - email
       - role
+    system_info:
+      properties:
+        architecture:
+          type: string
+        boot_id:
+          type: string
+        container_runtime_version:
+          type: string
+        kernel_version:
+          type: string
+        kubelet_version:
+          type: string
+        machine_id:
+          type: string
+        operating_system:
+          type: string
+        os_image:
+          type: string
+        system_uuid:
+          type: string

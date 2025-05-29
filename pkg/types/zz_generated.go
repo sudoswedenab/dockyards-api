@@ -186,6 +186,19 @@ type StorageResource struct {
 	Type     *string `json:"type,omitempty"`
 }
 
+// SystemInfo defines model for system_info.
+type SystemInfo struct {
+	Architecture            *string `json:"architecture,omitempty"`
+	BootID                  *string `json:"boot_id,omitempty"`
+	ContainerRuntimeVersion *string `json:"container_runtime_version,omitempty"`
+	KernelVersion           *string `json:"kernel_version,omitempty"`
+	KubeletVersion          *string `json:"kubelet_version,omitempty"`
+	MachineID               *string `json:"machine_id,omitempty"`
+	OperatingSystem         *string `json:"operating_system,omitempty"`
+	OsImage                 *string `json:"os_image,omitempty"`
+	SystemUUID              *string `json:"system_uuid,omitempty"`
+}
+
 // Tokens defines model for tokens.
 type Tokens struct {
 	AccessToken  string `json:"AccessToken"`
