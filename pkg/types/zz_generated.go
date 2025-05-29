@@ -107,14 +107,14 @@ type LoginOptions struct {
 
 // Node defines model for node.
 type Node struct {
-	Condition  *string            `json:"condition,omitempty"`
-	CreatedAt  time.Time          `json:"created_at"`
-	DeletedAt  *time.Time         `json:"deleted_at,omitempty"`
-	ID         string             `json:"id"`
-	Name       string             `json:"name"`
-	ProviderID *string            `json:"provider_id,omitempty"`
-	SystemInfo *map[string]string `json:"system_info,omitempty"`
-	UpdatedAt  *time.Time         `json:"updated_at,omitempty"`
+	Condition  *string     `json:"condition,omitempty"`
+	CreatedAt  time.Time   `json:"created_at"`
+	DeletedAt  *time.Time  `json:"deleted_at,omitempty"`
+	ID         string      `json:"id"`
+	Name       string      `json:"name"`
+	ProviderID *string     `json:"provider_id,omitempty"`
+	SystemInfo *SystemInfo `json:"system_info,omitempty"`
+	UpdatedAt  *time.Time  `json:"updated_at,omitempty"`
 }
 
 // NodePool defines model for node_pool.

@@ -295,9 +295,7 @@ components:
         provider_id:
           type: string
         system_info:
-          type: object
-          additionalProperties:
-            type: string
+          $ref: '#/components/schemas/system_info'
       required:
       - id
       - name
