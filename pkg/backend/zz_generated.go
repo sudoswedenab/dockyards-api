@@ -126,6 +126,9 @@ type ServerInterface interface {
 	// (GET /v1/orgs/{organization_name}/clusters/{cluster_name}/nodes)
 	GetClusterNodes(w http.ResponseWriter, r *http.Request, organizationName string, clusterName string)
 
+	// (GET /v1/orgs/{organization_name}/clusters/{cluster_name}/nodes/{node_name})
+	GetClusterNode(w http.ResponseWriter, r *http.Request, organizationName string, clusterName string, nodeName string)
+
 	// (GET /v1/orgs/{organization_name}/clusters/{cluster_name}/workloads)
 	GetClusterWorkloads(w http.ResponseWriter, r *http.Request, organizationName string, clusterName string)
 
@@ -805,6 +808,52 @@ func (siw *ServerInterfaceWrapper) GetClusterNodes(w http.ResponseWriter, r *htt
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
+// GetClusterNode operation middleware
+func (siw *ServerInterfaceWrapper) GetClusterNode(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "organization_name" -------------
+	var organizationName string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "organization_name", r.PathValue("organization_name"), &organizationName, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "organization_name", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "cluster_name" -------------
+	var clusterName string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "cluster_name", r.PathValue("cluster_name"), &clusterName, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "cluster_name", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "node_name" -------------
+	var nodeName string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "node_name", r.PathValue("node_name"), &nodeName, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "node_name", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetClusterNode(w, r, organizationName, clusterName, nodeName)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
 // GetClusterWorkloads operation middleware
 func (siw *ServerInterfaceWrapper) GetClusterWorkloads(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1472,6 +1521,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/clusters/{cluster_name}/node-pools/{node_pool_name}", wrapper.GetClusterNodePool)
 	m.HandleFunc("PATCH "+options.BaseURL+"/v1/orgs/{organization_name}/clusters/{cluster_name}/node-pools/{node_pool_name}", wrapper.UpdateClusterNodePool)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/clusters/{cluster_name}/nodes", wrapper.GetClusterNodes)
+	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/clusters/{cluster_name}/nodes/{node_name}", wrapper.GetClusterNode)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/clusters/{cluster_name}/workloads", wrapper.GetClusterWorkloads)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/orgs/{organization_name}/clusters/{cluster_name}/workloads", wrapper.CreateClusterWorkload)
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/orgs/{organization_name}/clusters/{cluster_name}/workloads/{workload_name}", wrapper.DeleteClusterWorkload)

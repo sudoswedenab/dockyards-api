@@ -220,6 +220,9 @@ type ClientInterface interface {
 	// GetClusterNodes request
 	GetClusterNodes(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetClusterNode request
+	GetClusterNode(ctx context.Context, organizationName string, clusterName string, nodeName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetClusterWorkloads request
 	GetClusterWorkloads(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -629,6 +632,18 @@ func (c *Client) UpdateClusterNodePool(ctx context.Context, organizationName str
 
 func (c *Client) GetClusterNodes(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetClusterNodesRequest(c.Server, organizationName, clusterName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetClusterNode(ctx context.Context, organizationName string, clusterName string, nodeName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetClusterNodeRequest(c.Server, organizationName, clusterName, nodeName)
 	if err != nil {
 		return nil, err
 	}
@@ -1757,6 +1772,54 @@ func NewGetClusterNodesRequest(server string, organizationName string, clusterNa
 	return req, nil
 }
 
+// NewGetClusterNodeRequest generates requests for GetClusterNode
+func NewGetClusterNodeRequest(server string, organizationName string, clusterName string, nodeName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "cluster_name", runtime.ParamLocationPath, clusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "node_name", runtime.ParamLocationPath, nodeName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/orgs/%s/clusters/%s/nodes/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetClusterWorkloadsRequest generates requests for GetClusterWorkloads
 func NewGetClusterWorkloadsRequest(server string, organizationName string, clusterName string) (*http.Request, error) {
 	var err error
@@ -2560,6 +2623,9 @@ type ClientWithResponsesInterface interface {
 	// GetClusterNodesWithResponse request
 	GetClusterNodesWithResponse(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*GetClusterNodesResponse, error)
 
+	// GetClusterNodeWithResponse request
+	GetClusterNodeWithResponse(ctx context.Context, organizationName string, clusterName string, nodeName string, reqEditors ...RequestEditorFn) (*GetClusterNodeResponse, error)
+
 	// GetClusterWorkloadsWithResponse request
 	GetClusterWorkloadsWithResponse(ctx context.Context, organizationName string, clusterName string, reqEditors ...RequestEditorFn) (*GetClusterWorkloadsResponse, error)
 
@@ -3073,6 +3139,28 @@ func (r GetClusterNodesResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetClusterNodesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetClusterNodeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *externalRef0.Node
+}
+
+// Status returns HTTPResponse.Status
+func (r GetClusterNodeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetClusterNodeResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -3688,6 +3776,15 @@ func (c *ClientWithResponses) GetClusterNodesWithResponse(ctx context.Context, o
 		return nil, err
 	}
 	return ParseGetClusterNodesResponse(rsp)
+}
+
+// GetClusterNodeWithResponse request returning *GetClusterNodeResponse
+func (c *ClientWithResponses) GetClusterNodeWithResponse(ctx context.Context, organizationName string, clusterName string, nodeName string, reqEditors ...RequestEditorFn) (*GetClusterNodeResponse, error) {
+	rsp, err := c.GetClusterNode(ctx, organizationName, clusterName, nodeName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetClusterNodeResponse(rsp)
 }
 
 // GetClusterWorkloadsWithResponse request returning *GetClusterWorkloadsResponse
@@ -4378,6 +4475,32 @@ func ParseGetClusterNodesResponse(rsp *http.Response) (*GetClusterNodesResponse,
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest []externalRef0.Node
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetClusterNodeResponse parses an HTTP response from a GetClusterNodeWithResponse call
+func ParseGetClusterNodeResponse(rsp *http.Response) (*GetClusterNodeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetClusterNodeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest externalRef0.Node
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
