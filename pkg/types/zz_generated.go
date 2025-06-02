@@ -9,35 +9,41 @@ import (
 
 // Cluster defines model for cluster.
 type Cluster struct {
-	AllocateInternalIP *bool      `json:"allocate_internal_ip,omitempty"`
-	APIEndpoint        *string    `json:"api_endpoint,omitempty"`
-	Condition          *string    `json:"condition,omitempty"`
-	CreatedAt          time.Time  `json:"created_at"`
-	DeletedAt          *time.Time `json:"deleted_at,omitempty"`
-	DNSZones           *[]string  `json:"dns_zones,omitempty"`
-	Duration           *string    `json:"duration,omitempty"`
-	ExpiresAt          *time.Time `json:"expires_at,omitempty"`
-	ID                 string     `json:"id"`
-	Name               string     `json:"name"`
-	NodePoolsCount     *int       `json:"node_pools_count,omitempty"`
-	NodesCount         *int       `json:"nodes_count,omitempty"`
-	Organization       *string    `json:"organization,omitempty"`
-	State              *string    `json:"state,omitempty"`
-	UpdatedAt          *time.Time `json:"updated_at,omitempty"`
-	Version            *string    `json:"version,omitempty"`
+	AllocateInternalIP     *bool      `json:"allocate_internal_ip,omitempty"`
+	APIEndpoint            *string    `json:"api_endpoint,omitempty"`
+	Condition              *string    `json:"condition,omitempty"`
+	CreatedAt              time.Time  `json:"created_at"`
+	DeletedAt              *time.Time `json:"deleted_at,omitempty"`
+	DNSZones               *[]string  `json:"dns_zones,omitempty"`
+	Duration               *string    `json:"duration,omitempty"`
+	ExpiresAt              *time.Time `json:"expires_at,omitempty"`
+	ID                     string     `json:"id"`
+	Name                   string     `json:"name"`
+	NoDefaultNetworkPlugin *bool      `json:"no_default_network_plugin,omitempty"`
+	NodePoolsCount         *int       `json:"node_pools_count,omitempty"`
+	NodesCount             *int       `json:"nodes_count,omitempty"`
+	Organization           *string    `json:"organization,omitempty"`
+	PodSubnets             *[]string  `json:"pod_subnets,omitempty"`
+	ServiceSubnets         *[]string  `json:"service_subnets,omitempty"`
+	State                  *string    `json:"state,omitempty"`
+	UpdatedAt              *time.Time `json:"updated_at,omitempty"`
+	Version                *string    `json:"version,omitempty"`
 }
 
 // ClusterOptions defines model for cluster_options.
 type ClusterOptions struct {
-	AllocateInternalIP *bool              `json:"allocate_internal_ip,omitempty"`
-	ClusterTemplate    *string            `json:"cluster_template,omitempty"`
-	Duration           *string            `json:"duration,omitempty"`
-	IngressProvider    *string            `json:"ingress_provider,omitempty"`
-	Name               string             `json:"name"`
-	NoClusterApps      *bool              `json:"no_cluster_apps,omitempty"`
-	NoIngressProvider  *bool              `json:"no_ingress_provider,omitempty"`
-	NodePoolOptions    *[]NodePoolOptions `json:"node_pool_options,omitempty"`
-	Version            *string            `json:"version,omitempty"`
+	AllocateInternalIP     *bool              `json:"allocate_internal_ip,omitempty"`
+	ClusterTemplate        *string            `json:"cluster_template,omitempty"`
+	Duration               *string            `json:"duration,omitempty"`
+	IngressProvider        *string            `json:"ingress_provider,omitempty"`
+	Name                   string             `json:"name"`
+	NoClusterApps          *bool              `json:"no_cluster_apps,omitempty"`
+	NoDefaultNetworkPlugin *bool              `json:"no_default_network_plugin,omitempty"`
+	NoIngressProvider      *bool              `json:"no_ingress_provider,omitempty"`
+	NodePoolOptions        *[]NodePoolOptions `json:"node_pool_options,omitempty"`
+	PodSubnets             *[]string          `json:"pod_subnets,omitempty"`
+	ServiceSubnets         *[]string          `json:"service_subnets,omitempty"`
+	Version                *string            `json:"version,omitempty"`
 }
 
 // Credential defines model for credential.

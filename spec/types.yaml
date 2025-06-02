@@ -169,6 +169,16 @@ components:
           type: string
         duration:
           type: string
+        no_default_network_plugin:
+          type: boolean
+        pod_subnets:
+          type: array
+          items:
+            type: string
+        service_subnets:
+          type: array
+          items:
+            type: string
       required:
       - name
     cluster:
@@ -211,6 +221,16 @@ components:
           format: date-time
         node_pools_count:
           type: integer
+        no_default_network_plugin:
+          type: boolean
+        pod_subnets:
+          type: array
+          items:
+            type: string
+        service_subnets:
+          type: array
+          items:
+            type: string
       required:
       - id
       - name
