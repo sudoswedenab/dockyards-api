@@ -171,6 +171,9 @@ type ServerInterface interface {
 	// (GET /v1/orgs/{organization_name}/ip-pools)
 	GetIPPools(w http.ResponseWriter, r *http.Request, organizationName string)
 
+	// (GET /v1/orgs/{organization_name}/members)
+	GetOrganizationMembers(w http.ResponseWriter, r *http.Request, organizationName string)
+
 	// (POST /v1/refresh)
 	Refresh(w http.ResponseWriter, r *http.Request)
 
@@ -1354,6 +1357,34 @@ func (siw *ServerInterfaceWrapper) GetIPPools(w http.ResponseWriter, r *http.Req
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
+// GetOrganizationMembers operation middleware
+func (siw *ServerInterfaceWrapper) GetOrganizationMembers(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "organization_name" -------------
+	var organizationName string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "organization_name", r.PathValue("organization_name"), &organizationName, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "organization_name", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetOrganizationMembers(w, r, organizationName)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
 // Refresh operation middleware
 func (siw *ServerInterfaceWrapper) Refresh(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1536,6 +1567,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("POST "+options.BaseURL+"/v1/orgs/{organization_name}/invitations", wrapper.CreateOrganizationInvitation)
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/orgs/{organization_name}/invitations/{invitation_name}", wrapper.DeleteOrganizationInvitation)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/ip-pools", wrapper.GetIPPools)
+	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/members", wrapper.GetOrganizationMembers)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/refresh", wrapper.Refresh)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/whoami", wrapper.Whoami)
 

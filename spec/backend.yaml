@@ -843,6 +843,25 @@ paths:
                 $ref: 'types.yaml#/components/schemas/node'
         401: {}
         500: {}
+  /v1/orgs/{organization_name}/members:
+    get:
+      operationId: getOrganizationMembers
+      parameters:
+      - name: organization_name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'types.yaml#/components/schemas/member'
+        401: {}
+        500: {}
 components:
   securitySchemas:
     bearerAuth:
