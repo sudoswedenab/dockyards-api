@@ -111,6 +111,17 @@ type LoginOptions struct {
 	Password string `json:"password"`
 }
 
+// Member defines model for member.
+type Member struct {
+	CreatedAt time.Time  `json:"created_at"`
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	Email     *string    `json:"email,omitempty"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	Role      *string    `json:"role,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+}
+
 // Node defines model for node.
 type Node struct {
 	Condition  *string     `json:"condition,omitempty"`
