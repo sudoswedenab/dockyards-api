@@ -278,6 +278,9 @@ type ClientInterface interface {
 	// GetOrganizationMembers request
 	GetOrganizationMembers(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DeleteOrganizationMember request
+	DeleteOrganizationMember(ctx context.Context, organizationName string, memberName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// Refresh request
 	Refresh(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -887,6 +890,18 @@ func (c *Client) GetIPPools(ctx context.Context, organizationName string, reqEdi
 
 func (c *Client) GetOrganizationMembers(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetOrganizationMembersRequest(c.Server, organizationName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteOrganizationMember(ctx context.Context, organizationName string, memberName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteOrganizationMemberRequest(c.Server, organizationName, memberName)
 	if err != nil {
 		return nil, err
 	}
@@ -2494,6 +2509,47 @@ func NewGetOrganizationMembersRequest(server string, organizationName string) (*
 	return req, nil
 }
 
+// NewDeleteOrganizationMemberRequest generates requests for DeleteOrganizationMember
+func NewDeleteOrganizationMemberRequest(server string, organizationName string, memberName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "organization_name", runtime.ParamLocationPath, organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "member_name", runtime.ParamLocationPath, memberName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/orgs/%s/members/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewRefreshRequest generates requests for Refresh
 func NewRefreshRequest(server string) (*http.Request, error) {
 	var err error
@@ -2729,6 +2785,9 @@ type ClientWithResponsesInterface interface {
 
 	// GetOrganizationMembersWithResponse request
 	GetOrganizationMembersWithResponse(ctx context.Context, organizationName string, reqEditors ...RequestEditorFn) (*GetOrganizationMembersResponse, error)
+
+	// DeleteOrganizationMemberWithResponse request
+	DeleteOrganizationMemberWithResponse(ctx context.Context, organizationName string, memberName string, reqEditors ...RequestEditorFn) (*DeleteOrganizationMemberResponse, error)
 
 	// RefreshWithResponse request
 	RefreshWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*RefreshResponse, error)
@@ -3547,6 +3606,27 @@ func (r GetOrganizationMembersResponse) StatusCode() int {
 	return 0
 }
 
+type DeleteOrganizationMemberResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteOrganizationMemberResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteOrganizationMemberResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type RefreshResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -4034,6 +4114,15 @@ func (c *ClientWithResponses) GetOrganizationMembersWithResponse(ctx context.Con
 		return nil, err
 	}
 	return ParseGetOrganizationMembersResponse(rsp)
+}
+
+// DeleteOrganizationMemberWithResponse request returning *DeleteOrganizationMemberResponse
+func (c *ClientWithResponses) DeleteOrganizationMemberWithResponse(ctx context.Context, organizationName string, memberName string, reqEditors ...RequestEditorFn) (*DeleteOrganizationMemberResponse, error) {
+	rsp, err := c.DeleteOrganizationMember(ctx, organizationName, memberName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteOrganizationMemberResponse(rsp)
 }
 
 // RefreshWithResponse request returning *RefreshResponse
@@ -4953,6 +5042,22 @@ func ParseGetOrganizationMembersResponse(rsp *http.Response) (*GetOrganizationMe
 		}
 		response.JSON200 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseDeleteOrganizationMemberResponse parses an HTTP response from a DeleteOrganizationMemberWithResponse call
+func ParseDeleteOrganizationMemberResponse(rsp *http.Response) (*DeleteOrganizationMemberResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteOrganizationMemberResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil

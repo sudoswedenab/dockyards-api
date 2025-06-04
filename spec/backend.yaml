@@ -862,6 +862,24 @@ paths:
                   $ref: 'types.yaml#/components/schemas/member'
         401: {}
         500: {}
+  /v1/orgs/{organization_name}/members/{member_name}:
+    delete:
+      operationId: deleteOrganizationMember
+      parameters:
+      - name: organization_name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: member_name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        202: {}
+        401: {}
+        500: {}
 components:
   securitySchemas:
     bearerAuth:
