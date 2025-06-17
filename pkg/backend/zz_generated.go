@@ -60,6 +60,9 @@ type UpdateOrganizationCredentialJSONRequestBody = externalRef0.CredentialOption
 // CreateOrganizationInvitationJSONRequestBody defines body for CreateOrganizationInvitation for application/json ContentType.
 type CreateOrganizationInvitationJSONRequestBody = externalRef0.InvitationOptions
 
+// CreateUserJSONRequestBody defines body for CreateUser for application/json ContentType.
+type CreateUserJSONRequestBody = externalRef0.UserOptions
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
@@ -179,6 +182,9 @@ type ServerInterface interface {
 
 	// (POST /v1/refresh)
 	Refresh(w http.ResponseWriter, r *http.Request)
+
+	// (POST /v1/users)
+	CreateUser(w http.ResponseWriter, r *http.Request)
 
 	// (GET /v1/whoami)
 	Whoami(w http.ResponseWriter, r *http.Request)
@@ -1440,6 +1446,23 @@ func (siw *ServerInterfaceWrapper) Refresh(w http.ResponseWriter, r *http.Reques
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
+// CreateUser operation middleware
+func (siw *ServerInterfaceWrapper) CreateUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateUser(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
 // Whoami operation middleware
 func (siw *ServerInterfaceWrapper) Whoami(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1610,6 +1633,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/members", wrapper.GetOrganizationMembers)
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/orgs/{organization_name}/members/{member_name}", wrapper.DeleteOrganizationMember)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/refresh", wrapper.Refresh)
+	m.HandleFunc("POST "+options.BaseURL+"/v1/users", wrapper.CreateUser)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/whoami", wrapper.Whoami)
 
 	return m

@@ -880,6 +880,24 @@ paths:
         202: {}
         401: {}
         500: {}
+  /v1/users:
+    post:
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/user_options'
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: 'types.yaml#/components/schemas/user'
+        403: {}
+        422: {}
+        500: {}
 components:
   securitySchemas:
     bearerAuth:
