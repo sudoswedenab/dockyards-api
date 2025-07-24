@@ -66,35 +66,6 @@ paths:
               schema:
                 $ref: 'types.yaml#/components/schemas/options'
         500: {}
-  /v1/clusters/{cluster_id}:
-    get:
-      operationId: getCluster
-      parameters:
-      - name: cluster_id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: 'types.yaml#/components/schemas/cluster'
-        401: {}
-        500: {}
-    delete:
-      operationId: deleteCluster
-      parameters:
-      - name: cluster_id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        202: {}
-        401: {}
-        500: {}
   /v1/orgs:
     get:
       operationId: getOrganizations

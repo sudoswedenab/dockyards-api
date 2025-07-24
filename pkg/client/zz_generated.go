@@ -145,12 +145,6 @@ type ClientInterface interface {
 	// GetClusterOptions request
 	GetClusterOptions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteCluster request
-	DeleteCluster(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetCluster request
-	GetCluster(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// CreateNodePoolWithBody request with any body
 	CreateNodePoolWithBody(ctx context.Context, clusterID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -298,30 +292,6 @@ type ClientInterface interface {
 
 func (c *Client) GetClusterOptions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetClusterOptionsRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) DeleteCluster(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteClusterRequest(c.Server, clusterID)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetCluster(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetClusterRequest(c.Server, clusterID)
 	if err != nil {
 		return nil, err
 	}
@@ -978,74 +948,6 @@ func NewGetClusterOptionsRequest(server string) (*http.Request, error) {
 	}
 
 	operationPath := fmt.Sprintf("/v1/cluster-options")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewDeleteClusterRequest generates requests for DeleteCluster
-func NewDeleteClusterRequest(server string, clusterID string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "cluster_id", runtime.ParamLocationPath, clusterID)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/clusters/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewGetClusterRequest generates requests for GetCluster
-func NewGetClusterRequest(server string, clusterID string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "cluster_id", runtime.ParamLocationPath, clusterID)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/clusters/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -2722,12 +2624,6 @@ type ClientWithResponsesInterface interface {
 	// GetClusterOptionsWithResponse request
 	GetClusterOptionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetClusterOptionsResponse, error)
 
-	// DeleteClusterWithResponse request
-	DeleteClusterWithResponse(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*DeleteClusterResponse, error)
-
-	// GetClusterWithResponse request
-	GetClusterWithResponse(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*GetClusterResponse, error)
-
 	// CreateNodePoolWithBodyWithResponse request with any body
 	CreateNodePoolWithBodyWithResponse(ctx context.Context, clusterID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateNodePoolResponse, error)
 
@@ -2889,49 +2785,6 @@ func (r GetClusterOptionsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetClusterOptionsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type DeleteClusterResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r DeleteClusterResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r DeleteClusterResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type GetClusterResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *externalRef0.Cluster
-}
-
-// Status returns HTTPResponse.Status
-func (r GetClusterResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetClusterResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -3779,24 +3632,6 @@ func (c *ClientWithResponses) GetClusterOptionsWithResponse(ctx context.Context,
 	return ParseGetClusterOptionsResponse(rsp)
 }
 
-// DeleteClusterWithResponse request returning *DeleteClusterResponse
-func (c *ClientWithResponses) DeleteClusterWithResponse(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*DeleteClusterResponse, error) {
-	rsp, err := c.DeleteCluster(ctx, clusterID, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseDeleteClusterResponse(rsp)
-}
-
-// GetClusterWithResponse request returning *GetClusterResponse
-func (c *ClientWithResponses) GetClusterWithResponse(ctx context.Context, clusterID string, reqEditors ...RequestEditorFn) (*GetClusterResponse, error) {
-	rsp, err := c.GetCluster(ctx, clusterID, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetClusterResponse(rsp)
-}
-
 // CreateNodePoolWithBodyWithResponse request with arbitrary body returning *CreateNodePoolResponse
 func (c *ClientWithResponses) CreateNodePoolWithBodyWithResponse(ctx context.Context, clusterID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateNodePoolResponse, error) {
 	rsp, err := c.CreateNodePoolWithBody(ctx, clusterID, contentType, body, reqEditors...)
@@ -4275,48 +4110,6 @@ func ParseGetClusterOptionsResponse(rsp *http.Response) (*GetClusterOptionsRespo
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest externalRef0.Options
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseDeleteClusterResponse parses an HTTP response from a DeleteClusterWithResponse call
-func ParseDeleteClusterResponse(rsp *http.Response) (*DeleteClusterResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &DeleteClusterResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseGetClusterResponse parses an HTTP response from a GetClusterWithResponse call
-func ParseGetClusterResponse(rsp *http.Response) (*GetClusterResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetClusterResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest externalRef0.Cluster
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
