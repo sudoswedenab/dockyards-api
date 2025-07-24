@@ -180,6 +180,26 @@ paths:
                   $ref: 'types.yaml#/components/schemas/cluster'
         401: {}
         500: {}
+  /v1/orgs/{organization_name}/clusters/{cluster_name}:
+    delete:
+      operationId: deleteCluster
+      parameters:
+      - name: organization_name
+        required: true
+        in: path
+        schema:
+          type: string
+      - name: cluster_name
+        required: true
+        in: path
+        schema:
+          type: string
+      responses:
+        202: {}
+        400: {}
+        401: {}
+        404: {}
+        500: {}
   /v1/orgs/{organization_name}/ip-pools:
     get:
       operationId: getIpPools
