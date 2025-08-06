@@ -196,6 +196,12 @@ type OrganizationOptions struct {
 	VoucherCode             *string `json:"voucher_code,omitempty"`
 }
 
+// PasswordOptions defines model for password_options.
+type PasswordOptions struct {
+	NewPassword string `json:"new_password"`
+	OldPassword string `json:"old_password"`
+}
+
 // StorageResource defines model for storage_resource.
 type StorageResource struct {
 	Name     string  `json:"name"`

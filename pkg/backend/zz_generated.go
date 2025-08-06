@@ -63,6 +63,9 @@ type CreateOrganizationInvitationJSONRequestBody = externalRef0.InvitationOption
 // CreateUserJSONRequestBody defines body for CreateUser for application/json ContentType.
 type CreateUserJSONRequestBody = externalRef0.UserOptions
 
+// UpdatePasswordJSONRequestBody defines body for UpdatePassword for application/json ContentType.
+type UpdatePasswordJSONRequestBody = externalRef0.PasswordOptions
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
@@ -182,6 +185,9 @@ type ServerInterface interface {
 
 	// (POST /v1/users)
 	CreateUser(w http.ResponseWriter, r *http.Request)
+
+	// (POST /v1/users/{user_name}/password)
+	UpdatePassword(w http.ResponseWriter, r *http.Request, userName string)
 
 	// (GET /v1/whoami)
 	Whoami(w http.ResponseWriter, r *http.Request)
@@ -1441,6 +1447,34 @@ func (siw *ServerInterfaceWrapper) CreateUser(w http.ResponseWriter, r *http.Req
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
+// UpdatePassword operation middleware
+func (siw *ServerInterfaceWrapper) UpdatePassword(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "user_name" -------------
+	var userName string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "user_name", r.PathValue("user_name"), &userName, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user_name", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdatePassword(w, r, userName)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
 // Whoami operation middleware
 func (siw *ServerInterfaceWrapper) Whoami(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1611,6 +1645,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/orgs/{organization_name}/members/{member_name}", wrapper.DeleteOrganizationMember)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/refresh", wrapper.Refresh)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/users", wrapper.CreateUser)
+	m.HandleFunc("POST "+options.BaseURL+"/v1/users/{user_name}/password", wrapper.UpdatePassword)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/whoami", wrapper.Whoami)
 
 	return m

@@ -889,6 +889,26 @@ paths:
         403: {}
         422: {}
         500: {}
+  /v1/users/{user_name}/password:
+    post:
+      operationId: updatePassword
+      parameters:
+      - name: user_name
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/password_options'
+      responses:
+        202: {}
+        401: {}
+        422: {}
+        500: {}
 components:
   securitySchemas:
     bearerAuth:

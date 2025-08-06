@@ -69,6 +69,9 @@ type CreateOrganizationInvitationJSONRequestBody = externalRef0.InvitationOption
 // CreateUserJSONRequestBody defines body for CreateUser for application/json ContentType.
 type CreateUserJSONRequestBody = externalRef0.UserOptions
 
+// UpdatePasswordJSONRequestBody defines body for UpdatePassword for application/json ContentType.
+type UpdatePasswordJSONRequestBody = externalRef0.PasswordOptions
+
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
 
@@ -288,6 +291,11 @@ type ClientInterface interface {
 	CreateUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateUser(ctx context.Context, body CreateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdatePasswordWithBody request with any body
+	UpdatePasswordWithBody(ctx context.Context, userName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdatePassword(ctx context.Context, userName string, body UpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// Whoami request
 	Whoami(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -931,6 +939,30 @@ func (c *Client) CreateUserWithBody(ctx context.Context, contentType string, bod
 
 func (c *Client) CreateUser(ctx context.Context, body CreateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateUserRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdatePasswordWithBody(ctx context.Context, userName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdatePasswordRequestWithBody(c.Server, userName, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdatePassword(ctx context.Context, userName string, body UpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdatePasswordRequest(c.Server, userName, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2607,6 +2639,53 @@ func NewCreateUserRequestWithBody(server string, contentType string, body io.Rea
 	return req, nil
 }
 
+// NewUpdatePasswordRequest calls the generic UpdatePassword builder with application/json body
+func NewUpdatePasswordRequest(server string, userName string, body UpdatePasswordJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdatePasswordRequestWithBody(server, userName, "application/json", bodyReader)
+}
+
+// NewUpdatePasswordRequestWithBody generates requests for UpdatePassword with any type of body
+func NewUpdatePasswordRequestWithBody(server string, userName string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "user_name", runtime.ParamLocationPath, userName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/users/%s/password", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewWhoamiRequest generates requests for Whoami
 func NewWhoamiRequest(server string) (*http.Request, error) {
 	var err error
@@ -2823,6 +2902,11 @@ type ClientWithResponsesInterface interface {
 	CreateUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateUserResponse, error)
 
 	CreateUserWithResponse(ctx context.Context, body CreateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateUserResponse, error)
+
+	// UpdatePasswordWithBodyWithResponse request with any body
+	UpdatePasswordWithBodyWithResponse(ctx context.Context, userName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePasswordResponse, error)
+
+	UpdatePasswordWithResponse(ctx context.Context, userName string, body UpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePasswordResponse, error)
 
 	// WhoamiWithResponse request
 	WhoamiWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*WhoamiResponse, error)
@@ -3681,6 +3765,27 @@ func (r CreateUserResponse) StatusCode() int {
 	return 0
 }
 
+type UpdatePasswordResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdatePasswordResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdatePasswordResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type WhoamiResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -4172,6 +4277,23 @@ func (c *ClientWithResponses) CreateUserWithResponse(ctx context.Context, body C
 		return nil, err
 	}
 	return ParseCreateUserResponse(rsp)
+}
+
+// UpdatePasswordWithBodyWithResponse request with arbitrary body returning *UpdatePasswordResponse
+func (c *ClientWithResponses) UpdatePasswordWithBodyWithResponse(ctx context.Context, userName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePasswordResponse, error) {
+	rsp, err := c.UpdatePasswordWithBody(ctx, userName, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdatePasswordResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdatePasswordWithResponse(ctx context.Context, userName string, body UpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePasswordResponse, error) {
+	rsp, err := c.UpdatePassword(ctx, userName, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdatePasswordResponse(rsp)
 }
 
 // WhoamiWithResponse request returning *WhoamiResponse
@@ -5124,6 +5246,22 @@ func ParseCreateUserResponse(rsp *http.Response) (*CreateUserResponse, error) {
 		}
 		response.JSON201 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseUpdatePasswordResponse parses an HTTP response from a UpdatePasswordWithResponse call
+func ParseUpdatePasswordResponse(rsp *http.Response) (*UpdatePasswordResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdatePasswordResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
