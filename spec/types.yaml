@@ -125,6 +125,7 @@ components:
       required:
       - id
       - name
+      - created_at
     node_pool_options:
       properties:
         name:

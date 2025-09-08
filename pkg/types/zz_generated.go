@@ -140,7 +140,7 @@ type NodePool struct {
 	ControlPlane               *bool              `json:"control_plane,omitempty"`
 	ControlPlaneComponentsOnly *bool              `json:"control_plane_components_only,omitempty"`
 	CPUCount                   *int               `json:"cpu_count,omitempty"`
-	CreatedAt                  *time.Time         `json:"created_at,omitempty"`
+	CreatedAt                  time.Time          `json:"created_at"`
 	DeletedAt                  *time.Time         `json:"deleted_at,omitempty"`
 	DiskSize                   *string            `json:"disk_size,omitempty"`
 	ID                         string             `json:"id"`
