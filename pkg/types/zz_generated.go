@@ -33,7 +33,7 @@ type Cluster struct {
 // ClusterOptions defines model for cluster_options.
 type ClusterOptions struct {
 	AllocateInternalIP     *bool              `json:"allocate_internal_ip,omitempty"`
-	ClusterTemplate        *string            `json:"cluster_template,omitempty"`
+	ClusterTemplateName    *string            `json:"cluster_template_name,omitempty"`
 	Duration               *string            `json:"duration,omitempty"`
 	IngressProvider        *string            `json:"ingress_provider,omitempty"`
 	Name                   string             `json:"name"`

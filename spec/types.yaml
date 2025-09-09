@@ -166,7 +166,7 @@ components:
           type: boolean
         allocate_internal_ip:
           type: boolean
-        cluster_template:
+        cluster_template_name:
           type: string
         duration:
           type: string
