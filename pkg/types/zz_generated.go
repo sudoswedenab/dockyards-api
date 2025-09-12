@@ -57,11 +57,26 @@ type Credential struct {
 	UpdatedAt              *time.Time         `json:"updated_at,omitempty"`
 }
 
+// CredentialOption defines model for credential_option.
+type CredentialOption struct {
+	Default     *string `json:"default,omitempty"`
+	DisplayName *string `json:"display_name,omitempty"`
+	Key         string  `json:"key"`
+	Plaintext   *bool   `json:"plaintext,omitempty"`
+	Type        *string `json:"type,omitempty"`
+}
+
 // CredentialOptions defines model for credential_options.
 type CredentialOptions struct {
 	CredentialTemplateName *string            `json:"credential_template_name,omitempty"`
 	Data                   *map[string][]byte `json:"data,omitempty"`
 	Name                   *string            `json:"name,omitempty"`
+}
+
+// CredentialTemplate defines model for credential_template.
+type CredentialTemplate struct {
+	Name    string              `json:"name"`
+	Options *[]CredentialOption `json:"options,omitempty"`
 }
 
 // IdentityProvider defines model for identity_provider.
