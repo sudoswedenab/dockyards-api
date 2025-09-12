@@ -75,6 +75,9 @@ type ServerInterface interface {
 	// (POST /v1/clusters/{cluster_id}/node-pools)
 	CreateNodePool(w http.ResponseWriter, r *http.Request, clusterID string)
 
+	// (GET /v1/credential-templates)
+	GetV1CredentialTemplates(w http.ResponseWriter, r *http.Request)
+
 	// (GET /v1/invitations)
 	GetInvitations(w http.ResponseWriter, r *http.Request)
 
@@ -238,6 +241,23 @@ func (siw *ServerInterfaceWrapper) CreateNodePool(w http.ResponseWriter, r *http
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateNodePool(w, r, clusterID)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetV1CredentialTemplates operation middleware
+func (siw *ServerInterfaceWrapper) GetV1CredentialTemplates(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetV1CredentialTemplates(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1608,6 +1628,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 
 	m.HandleFunc("GET "+options.BaseURL+"/v1/cluster-options", wrapper.GetClusterOptions)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/clusters/{cluster_id}/node-pools", wrapper.CreateNodePool)
+	m.HandleFunc("GET "+options.BaseURL+"/v1/credential-templates", wrapper.GetV1CredentialTemplates)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/invitations", wrapper.GetInvitations)
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/invitations/{organization_name}", wrapper.DeleteInvitation)
 	m.HandleFunc("PATCH "+options.BaseURL+"/v1/invitations/{organization_name}", wrapper.UpdateInvitation)

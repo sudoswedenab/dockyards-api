@@ -507,6 +507,18 @@ paths:
         401: {}
         404: {}
         500: {}
+  /v1/credential-templates:
+    get:
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'types.yaml#/components/schemas/credential_template'
+        401: {}
+        500: {}
   /v1/orgs/{organization_name}/credentials:
     post:
       operationId: createOrganizationCredential

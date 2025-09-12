@@ -153,6 +153,9 @@ type ClientInterface interface {
 
 	CreateNodePool(ctx context.Context, clusterID string, body CreateNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetV1CredentialTemplates request
+	GetV1CredentialTemplates(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetInvitations request
 	GetInvitations(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -327,6 +330,18 @@ func (c *Client) CreateNodePoolWithBody(ctx context.Context, clusterID string, c
 
 func (c *Client) CreateNodePool(ctx context.Context, clusterID string, body CreateNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateNodePoolRequest(c.Server, clusterID, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetV1CredentialTemplates(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetV1CredentialTemplatesRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -1055,6 +1070,33 @@ func NewCreateNodePoolRequestWithBody(server string, clusterID string, contentTy
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetV1CredentialTemplatesRequest generates requests for GetV1CredentialTemplates
+func NewGetV1CredentialTemplatesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/credential-templates")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -2764,6 +2806,9 @@ type ClientWithResponsesInterface interface {
 
 	CreateNodePoolWithResponse(ctx context.Context, clusterID string, body CreateNodePoolJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateNodePoolResponse, error)
 
+	// GetV1CredentialTemplatesWithResponse request
+	GetV1CredentialTemplatesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetV1CredentialTemplatesResponse, error)
+
 	// GetInvitationsWithResponse request
 	GetInvitationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetInvitationsResponse, error)
 
@@ -2950,6 +2995,28 @@ func (r CreateNodePoolResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateNodePoolResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetV1CredentialTemplatesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]externalRef0.CredentialTemplate
+}
+
+// Status returns HTTPResponse.Status
+func (r GetV1CredentialTemplatesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetV1CredentialTemplatesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -3834,6 +3901,15 @@ func (c *ClientWithResponses) CreateNodePoolWithResponse(ctx context.Context, cl
 	return ParseCreateNodePoolResponse(rsp)
 }
 
+// GetV1CredentialTemplatesWithResponse request returning *GetV1CredentialTemplatesResponse
+func (c *ClientWithResponses) GetV1CredentialTemplatesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetV1CredentialTemplatesResponse, error) {
+	rsp, err := c.GetV1CredentialTemplates(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetV1CredentialTemplatesResponse(rsp)
+}
+
 // GetInvitationsWithResponse request returning *GetInvitationsResponse
 func (c *ClientWithResponses) GetInvitationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetInvitationsResponse, error) {
 	rsp, err := c.GetInvitations(ctx, reqEditors...)
@@ -4351,6 +4427,32 @@ func ParseCreateNodePoolResponse(rsp *http.Response) (*CreateNodePoolResponse, e
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetV1CredentialTemplatesResponse parses an HTTP response from a GetV1CredentialTemplatesWithResponse call
+func ParseGetV1CredentialTemplatesResponse(rsp *http.Response) (*GetV1CredentialTemplatesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetV1CredentialTemplatesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []externalRef0.CredentialTemplate
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	}
 

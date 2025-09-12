@@ -272,6 +272,30 @@ components:
           additionalProperties:
             type: string
             format: byte
+    credential_option:
+      properties:
+        default:
+          type: string
+        display_name:
+          type: string
+        key:
+          type: string
+        plaintext:
+          type: boolean
+        type:
+          type: string
+      required:
+      - key
+    credential_template:
+      properties:
+        name:
+          type: string
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/credential_option'
+      required:
+      - name
     user:
       properties:
         id:
