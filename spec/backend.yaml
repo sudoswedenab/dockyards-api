@@ -881,6 +881,21 @@ paths:
           type: string
       responses:
         202: {}
+        400: {}
+        401: {}
+        500: {}
+  /v1/orgs/{organization_name}/members/@me:
+    delete:
+      operationId: leaveOrganization
+      parameters:
+      - name: organization_name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        202: {}
+        400: {}
         401: {}
         500: {}
   /v1/users:
