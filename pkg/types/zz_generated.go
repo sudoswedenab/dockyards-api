@@ -267,6 +267,12 @@ type UserOptions struct {
 	Password    string  `json:"password"`
 }
 
+// VerifyOptions defines model for verify_options.
+type VerifyOptions struct {
+	Code string `json:"code"`
+	Type string `json:"type"`
+}
+
 // Workload defines model for workload.
 type Workload struct {
 	Condition            *string                 `json:"condition,omitempty"`

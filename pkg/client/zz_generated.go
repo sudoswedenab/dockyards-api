@@ -72,6 +72,9 @@ type CreateUserJSONRequestBody = externalRef0.UserOptions
 // UpdatePasswordJSONRequestBody defines body for UpdatePassword for application/json ContentType.
 type UpdatePasswordJSONRequestBody = externalRef0.PasswordOptions
 
+// VerifyJSONRequestBody defines body for Verify for application/json ContentType.
+type VerifyJSONRequestBody = externalRef0.VerifyOptions
+
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
 
@@ -302,6 +305,11 @@ type ClientInterface interface {
 	UpdatePasswordWithBody(ctx context.Context, userName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdatePassword(ctx context.Context, userName string, body UpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// VerifyWithBody request with any body
+	VerifyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	Verify(ctx context.Context, body VerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// Whoami request
 	Whoami(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -993,6 +1001,30 @@ func (c *Client) UpdatePasswordWithBody(ctx context.Context, userName string, co
 
 func (c *Client) UpdatePassword(ctx context.Context, userName string, body UpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdatePasswordRequest(c.Server, userName, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) VerifyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewVerifyRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) Verify(ctx context.Context, body VerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewVerifyRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2777,6 +2809,46 @@ func NewUpdatePasswordRequestWithBody(server string, userName string, contentTyp
 	return req, nil
 }
 
+// NewVerifyRequest calls the generic Verify builder with application/json body
+func NewVerifyRequest(server string, body VerifyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewVerifyRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewVerifyRequestWithBody generates requests for Verify with any type of body
+func NewVerifyRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/verify")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewWhoamiRequest generates requests for Whoami
 func NewWhoamiRequest(server string) (*http.Request, error) {
 	var err error
@@ -3004,6 +3076,11 @@ type ClientWithResponsesInterface interface {
 	UpdatePasswordWithBodyWithResponse(ctx context.Context, userName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePasswordResponse, error)
 
 	UpdatePasswordWithResponse(ctx context.Context, userName string, body UpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePasswordResponse, error)
+
+	// VerifyWithBodyWithResponse request with any body
+	VerifyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VerifyResponse, error)
+
+	VerifyWithResponse(ctx context.Context, body VerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*VerifyResponse, error)
 
 	// WhoamiWithResponse request
 	WhoamiWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*WhoamiResponse, error)
@@ -3926,6 +4003,27 @@ func (r UpdatePasswordResponse) StatusCode() int {
 	return 0
 }
 
+type VerifyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r VerifyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r VerifyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type WhoamiResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -4452,6 +4550,23 @@ func (c *ClientWithResponses) UpdatePasswordWithResponse(ctx context.Context, us
 		return nil, err
 	}
 	return ParseUpdatePasswordResponse(rsp)
+}
+
+// VerifyWithBodyWithResponse request with arbitrary body returning *VerifyResponse
+func (c *ClientWithResponses) VerifyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VerifyResponse, error) {
+	rsp, err := c.VerifyWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseVerifyResponse(rsp)
+}
+
+func (c *ClientWithResponses) VerifyWithResponse(ctx context.Context, body VerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*VerifyResponse, error) {
+	rsp, err := c.Verify(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseVerifyResponse(rsp)
 }
 
 // WhoamiWithResponse request returning *WhoamiResponse
@@ -5460,6 +5575,22 @@ func ParseUpdatePasswordResponse(rsp *http.Response) (*UpdatePasswordResponse, e
 	}
 
 	response := &UpdatePasswordResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseVerifyResponse parses an HTTP response from a VerifyWithResponse call
+func ParseVerifyResponse(rsp *http.Response) (*VerifyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &VerifyResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

@@ -936,6 +936,20 @@ paths:
         401: {}
         422: {}
         500: {}
+  /v1/verify:
+    post:
+      operationId: verify
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/verify_options'
+      responses:
+        202: {}
+        401: {}
+        422: {}
+        500: {}
 components:
   securitySchemas:
     bearerAuth:
