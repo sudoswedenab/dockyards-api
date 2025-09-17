@@ -439,6 +439,15 @@ components:
           type: string
         credential_reference_name:
           type: string
+    verify_options:
+      properties:
+        type:
+          type: string
+        code:
+          type: string
+      required:
+      - type
+      - code
     user_options:
       properties:
         display_name:

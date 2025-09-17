@@ -66,6 +66,9 @@ type CreateUserJSONRequestBody = externalRef0.UserOptions
 // UpdatePasswordJSONRequestBody defines body for UpdatePassword for application/json ContentType.
 type UpdatePasswordJSONRequestBody = externalRef0.PasswordOptions
 
+// VerifyJSONRequestBody defines body for Verify for application/json ContentType.
+type VerifyJSONRequestBody = externalRef0.VerifyOptions
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
@@ -194,6 +197,9 @@ type ServerInterface interface {
 
 	// (POST /v1/users/{user_name}/password)
 	UpdatePassword(w http.ResponseWriter, r *http.Request, userName string)
+
+	// (POST /v1/verify)
+	Verify(w http.ResponseWriter, r *http.Request)
 
 	// (GET /v1/whoami)
 	Whoami(w http.ResponseWriter, r *http.Request)
@@ -1526,6 +1532,23 @@ func (siw *ServerInterfaceWrapper) UpdatePassword(w http.ResponseWriter, r *http
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
+// Verify operation middleware
+func (siw *ServerInterfaceWrapper) Verify(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.Verify(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
 // Whoami operation middleware
 func (siw *ServerInterfaceWrapper) Whoami(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1699,6 +1722,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("POST "+options.BaseURL+"/v1/refresh", wrapper.Refresh)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/users", wrapper.CreateUser)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/users/{user_name}/password", wrapper.UpdatePassword)
+	m.HandleFunc("POST "+options.BaseURL+"/v1/verify", wrapper.Verify)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/whoami", wrapper.Whoami)
 
 	return m
