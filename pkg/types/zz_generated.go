@@ -46,6 +46,13 @@ type ClusterOptions struct {
 	Version                *string            `json:"version,omitempty"`
 }
 
+// ClusterTemplate defines model for cluster_template.
+type ClusterTemplate struct {
+	ClusterOptions ClusterOptions `json:"cluster_options"`
+	IsDefault      bool           `json:"is_default"`
+	Name           string         `json:"name"`
+}
+
 // Credential defines model for credential.
 type Credential struct {
 	CreatedAt              *time.Time         `json:"created_at,omitempty"`

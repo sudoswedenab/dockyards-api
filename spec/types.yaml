@@ -559,3 +559,15 @@ components:
       required:
       - old_password
       - new_password
+    cluster_template:
+      properties:
+        is_default:
+          type: boolean
+        name:
+          type: string
+        cluster_options:
+          $ref: '#/components/schemas/cluster_options'
+      required:
+      - name
+      - is_default
+      - cluster_options
