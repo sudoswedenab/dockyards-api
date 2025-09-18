@@ -151,6 +151,9 @@ type ClientInterface interface {
 	// GetClusterOptions request
 	GetClusterOptions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetClusterTemplates request
+	GetClusterTemplates(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateNodePoolWithBody request with any body
 	CreateNodePoolWithBody(ctx context.Context, clusterID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -317,6 +320,18 @@ type ClientInterface interface {
 
 func (c *Client) GetClusterOptions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetClusterOptionsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetClusterTemplates(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetClusterTemplatesRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -1057,6 +1072,33 @@ func NewGetClusterOptionsRequest(server string) (*http.Request, error) {
 	}
 
 	operationPath := fmt.Sprintf("/v1/cluster-options")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetClusterTemplatesRequest generates requests for GetClusterTemplates
+func NewGetClusterTemplatesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/cluster-templates")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -2922,6 +2964,9 @@ type ClientWithResponsesInterface interface {
 	// GetClusterOptionsWithResponse request
 	GetClusterOptionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetClusterOptionsResponse, error)
 
+	// GetClusterTemplatesWithResponse request
+	GetClusterTemplatesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetClusterTemplatesResponse, error)
+
 	// CreateNodePoolWithBodyWithResponse request with any body
 	CreateNodePoolWithBodyWithResponse(ctx context.Context, clusterID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateNodePoolResponse, error)
 
@@ -3102,6 +3147,28 @@ func (r GetClusterOptionsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetClusterOptionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetClusterTemplatesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]externalRef0.ClusterTemplate
+}
+
+// Status returns HTTPResponse.Status
+func (r GetClusterTemplatesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetClusterTemplatesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -4055,6 +4122,15 @@ func (c *ClientWithResponses) GetClusterOptionsWithResponse(ctx context.Context,
 	return ParseGetClusterOptionsResponse(rsp)
 }
 
+// GetClusterTemplatesWithResponse request returning *GetClusterTemplatesResponse
+func (c *ClientWithResponses) GetClusterTemplatesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetClusterTemplatesResponse, error) {
+	rsp, err := c.GetClusterTemplates(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetClusterTemplatesResponse(rsp)
+}
+
 // CreateNodePoolWithBodyWithResponse request with arbitrary body returning *CreateNodePoolResponse
 func (c *ClientWithResponses) CreateNodePoolWithBodyWithResponse(ctx context.Context, clusterID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateNodePoolResponse, error) {
 	rsp, err := c.CreateNodePoolWithBody(ctx, clusterID, contentType, body, reqEditors...)
@@ -4594,6 +4670,32 @@ func ParseGetClusterOptionsResponse(rsp *http.Response) (*GetClusterOptionsRespo
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest externalRef0.Options
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetClusterTemplatesResponse parses an HTTP response from a GetClusterTemplatesWithResponse call
+func ParseGetClusterTemplatesResponse(rsp *http.Response) (*GetClusterTemplatesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetClusterTemplatesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []externalRef0.ClusterTemplate
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

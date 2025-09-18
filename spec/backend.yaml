@@ -950,6 +950,19 @@ paths:
         401: {}
         422: {}
         500: {}
+  /v1/cluster-templates:
+    get:
+      operationId: getClusterTemplates
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'types.yaml#/components/schemas/cluster_template'
+        401: {}
+        500: {}
 components:
   securitySchemas:
     bearerAuth:
