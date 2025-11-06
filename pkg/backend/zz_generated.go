@@ -60,6 +60,12 @@ type UpdateOrganizationCredentialJSONRequestBody = externalRef0.CredentialOption
 // CreateOrganizationInvitationJSONRequestBody defines body for CreateOrganizationInvitation for application/json ContentType.
 type CreateOrganizationInvitationJSONRequestBody = externalRef0.InvitationOptions
 
+// CreatePasswordResetRequestJSONRequestBody defines body for CreatePasswordResetRequest for application/json ContentType.
+type CreatePasswordResetRequestJSONRequestBody = externalRef0.PasswordResetRequestOptions
+
+// ResetPasswordJSONRequestBody defines body for ResetPassword for application/json ContentType.
+type ResetPasswordJSONRequestBody = externalRef0.ResetPasswordOptions
+
 // CreateUserJSONRequestBody defines body for CreateUser for application/json ContentType.
 type CreateUserJSONRequestBody = externalRef0.UserOptions
 
@@ -192,8 +198,14 @@ type ServerInterface interface {
 	// (DELETE /v1/orgs/{organization_name}/members/{member_name})
 	DeleteOrganizationMember(w http.ResponseWriter, r *http.Request, organizationName string, memberName string)
 
+	// (POST /v1/password-reset-request)
+	CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request)
+
 	// (POST /v1/refresh)
 	Refresh(w http.ResponseWriter, r *http.Request)
+
+	// (POST /v1/reset-password)
+	ResetPassword(w http.ResponseWriter, r *http.Request)
 
 	// (POST /v1/users)
 	CreateUser(w http.ResponseWriter, r *http.Request)
@@ -1492,12 +1504,46 @@ func (siw *ServerInterfaceWrapper) DeleteOrganizationMember(w http.ResponseWrite
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
+// CreatePasswordResetRequest operation middleware
+func (siw *ServerInterfaceWrapper) CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreatePasswordResetRequest(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
 // Refresh operation middleware
 func (siw *ServerInterfaceWrapper) Refresh(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Refresh(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// ResetPassword operation middleware
+func (siw *ServerInterfaceWrapper) ResetPassword(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ResetPassword(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1740,7 +1786,9 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs/{organization_name}/members", wrapper.GetOrganizationMembers)
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/orgs/{organization_name}/members/@me", wrapper.LeaveOrganization)
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/orgs/{organization_name}/members/{member_name}", wrapper.DeleteOrganizationMember)
+	m.HandleFunc("POST "+options.BaseURL+"/v1/password-reset-request", wrapper.CreatePasswordResetRequest)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/refresh", wrapper.Refresh)
+	m.HandleFunc("POST "+options.BaseURL+"/v1/reset-password", wrapper.ResetPassword)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/users", wrapper.CreateUser)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/users/{user_name}/password", wrapper.UpdatePassword)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/verify", wrapper.Verify)

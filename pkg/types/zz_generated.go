@@ -224,6 +224,17 @@ type PasswordOptions struct {
 	OldPassword string `json:"old_password"`
 }
 
+// PasswordResetRequestOptions defines model for password_reset_request_options.
+type PasswordResetRequestOptions struct {
+	Email string `json:"email"`
+}
+
+// ResetPasswordOptions defines model for reset_password_options.
+type ResetPasswordOptions struct {
+	NewPassword string `json:"new_password"`
+	ResetCode   string `json:"reset_code"`
+}
+
 // StorageResource defines model for storage_resource.
 type StorageResource struct {
 	Name     string  `json:"name"`
