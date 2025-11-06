@@ -559,6 +559,21 @@ components:
       required:
       - old_password
       - new_password
+    password_reset_request_options:
+      properties:
+        email:
+          type: string
+      required:
+      - email
+    reset_password_options:
+      properties:
+        reset_code:
+          type: string
+        new_password:
+          type: string
+      required:
+      - reset_code
+      - new_password
     cluster_template:
       properties:
         is_default:

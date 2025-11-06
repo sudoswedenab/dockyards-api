@@ -66,6 +66,12 @@ type UpdateOrganizationCredentialJSONRequestBody = externalRef0.CredentialOption
 // CreateOrganizationInvitationJSONRequestBody defines body for CreateOrganizationInvitation for application/json ContentType.
 type CreateOrganizationInvitationJSONRequestBody = externalRef0.InvitationOptions
 
+// CreatePasswordResetRequestJSONRequestBody defines body for CreatePasswordResetRequest for application/json ContentType.
+type CreatePasswordResetRequestJSONRequestBody = externalRef0.PasswordResetRequestOptions
+
+// ResetPasswordJSONRequestBody defines body for ResetPassword for application/json ContentType.
+type ResetPasswordJSONRequestBody = externalRef0.ResetPasswordOptions
+
 // CreateUserJSONRequestBody defines body for CreateUser for application/json ContentType.
 type CreateUserJSONRequestBody = externalRef0.UserOptions
 
@@ -296,8 +302,18 @@ type ClientInterface interface {
 	// DeleteOrganizationMember request
 	DeleteOrganizationMember(ctx context.Context, organizationName string, memberName string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// CreatePasswordResetRequestWithBody request with any body
+	CreatePasswordResetRequestWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreatePasswordResetRequest(ctx context.Context, body CreatePasswordResetRequestJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// Refresh request
 	Refresh(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ResetPasswordWithBody request with any body
+	ResetPasswordWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ResetPassword(ctx context.Context, body ResetPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateUserWithBody request with any body
 	CreateUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -966,8 +982,56 @@ func (c *Client) DeleteOrganizationMember(ctx context.Context, organizationName 
 	return c.Client.Do(req)
 }
 
+func (c *Client) CreatePasswordResetRequestWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreatePasswordResetRequestRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreatePasswordResetRequest(ctx context.Context, body CreatePasswordResetRequestJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreatePasswordResetRequestRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) Refresh(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRefreshRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ResetPasswordWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewResetPasswordRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ResetPassword(ctx context.Context, body ResetPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewResetPasswordRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2737,6 +2801,46 @@ func NewDeleteOrganizationMemberRequest(server string, organizationName string, 
 	return req, nil
 }
 
+// NewCreatePasswordResetRequestRequest calls the generic CreatePasswordResetRequest builder with application/json body
+func NewCreatePasswordResetRequestRequest(server string, body CreatePasswordResetRequestJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreatePasswordResetRequestRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreatePasswordResetRequestRequestWithBody generates requests for CreatePasswordResetRequest with any type of body
+func NewCreatePasswordResetRequestRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/password-reset-request")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewRefreshRequest generates requests for Refresh
 func NewRefreshRequest(server string) (*http.Request, error) {
 	var err error
@@ -2760,6 +2864,46 @@ func NewRefreshRequest(server string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewResetPasswordRequest calls the generic ResetPassword builder with application/json body
+func NewResetPasswordRequest(server string, body ResetPasswordJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewResetPasswordRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewResetPasswordRequestWithBody generates requests for ResetPassword with any type of body
+func NewResetPasswordRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/reset-password")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -3109,8 +3253,18 @@ type ClientWithResponsesInterface interface {
 	// DeleteOrganizationMemberWithResponse request
 	DeleteOrganizationMemberWithResponse(ctx context.Context, organizationName string, memberName string, reqEditors ...RequestEditorFn) (*DeleteOrganizationMemberResponse, error)
 
+	// CreatePasswordResetRequestWithBodyWithResponse request with any body
+	CreatePasswordResetRequestWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePasswordResetRequestResponse, error)
+
+	CreatePasswordResetRequestWithResponse(ctx context.Context, body CreatePasswordResetRequestJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePasswordResetRequestResponse, error)
+
 	// RefreshWithResponse request
 	RefreshWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*RefreshResponse, error)
+
+	// ResetPasswordWithBodyWithResponse request with any body
+	ResetPasswordWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ResetPasswordResponse, error)
+
+	ResetPasswordWithResponse(ctx context.Context, body ResetPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*ResetPasswordResponse, error)
 
 	// CreateUserWithBodyWithResponse request with any body
 	CreateUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateUserResponse, error)
@@ -4005,6 +4159,27 @@ func (r DeleteOrganizationMemberResponse) StatusCode() int {
 	return 0
 }
 
+type CreatePasswordResetRequestResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r CreatePasswordResetRequestResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreatePasswordResetRequestResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type RefreshResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -4021,6 +4196,27 @@ func (r RefreshResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r RefreshResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ResetPasswordResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r ResetPasswordResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ResetPasswordResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -4585,6 +4781,23 @@ func (c *ClientWithResponses) DeleteOrganizationMemberWithResponse(ctx context.C
 	return ParseDeleteOrganizationMemberResponse(rsp)
 }
 
+// CreatePasswordResetRequestWithBodyWithResponse request with arbitrary body returning *CreatePasswordResetRequestResponse
+func (c *ClientWithResponses) CreatePasswordResetRequestWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePasswordResetRequestResponse, error) {
+	rsp, err := c.CreatePasswordResetRequestWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreatePasswordResetRequestResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreatePasswordResetRequestWithResponse(ctx context.Context, body CreatePasswordResetRequestJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePasswordResetRequestResponse, error) {
+	rsp, err := c.CreatePasswordResetRequest(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreatePasswordResetRequestResponse(rsp)
+}
+
 // RefreshWithResponse request returning *RefreshResponse
 func (c *ClientWithResponses) RefreshWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*RefreshResponse, error) {
 	rsp, err := c.Refresh(ctx, reqEditors...)
@@ -4592,6 +4805,23 @@ func (c *ClientWithResponses) RefreshWithResponse(ctx context.Context, reqEditor
 		return nil, err
 	}
 	return ParseRefreshResponse(rsp)
+}
+
+// ResetPasswordWithBodyWithResponse request with arbitrary body returning *ResetPasswordResponse
+func (c *ClientWithResponses) ResetPasswordWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ResetPasswordResponse, error) {
+	rsp, err := c.ResetPasswordWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseResetPasswordResponse(rsp)
+}
+
+func (c *ClientWithResponses) ResetPasswordWithResponse(ctx context.Context, body ResetPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*ResetPasswordResponse, error) {
+	rsp, err := c.ResetPassword(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseResetPasswordResponse(rsp)
 }
 
 // CreateUserWithBodyWithResponse request with arbitrary body returning *CreateUserResponse
@@ -5616,6 +5846,22 @@ func ParseDeleteOrganizationMemberResponse(rsp *http.Response) (*DeleteOrganizat
 	return response, nil
 }
 
+// ParseCreatePasswordResetRequestResponse parses an HTTP response from a CreatePasswordResetRequestWithResponse call
+func ParseCreatePasswordResetRequestResponse(rsp *http.Response) (*CreatePasswordResetRequestResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreatePasswordResetRequestResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseRefreshResponse parses an HTTP response from a RefreshWithResponse call
 func ParseRefreshResponse(rsp *http.Response) (*RefreshResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -5637,6 +5883,22 @@ func ParseRefreshResponse(rsp *http.Response) (*RefreshResponse, error) {
 		}
 		response.JSON200 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseResetPasswordResponse parses an HTTP response from a ResetPasswordWithResponse call
+func ParseResetPasswordResponse(rsp *http.Response) (*ResetPasswordResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ResetPasswordResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil

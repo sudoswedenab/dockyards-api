@@ -950,6 +950,30 @@ paths:
         401: {}
         422: {}
         500: {}
+  /v1/password-reset-request:
+    post:
+      operationId: createPasswordResetRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/password_reset_request_options'
+      responses:
+        500: {}
+        202: {}
+  /v1/reset-password:
+    post:
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'types.yaml#/components/schemas/reset_password_options'
+      responses:
+        500: {}
+        202: {}
   /v1/cluster-templates:
     get:
       operationId: getClusterTemplates
