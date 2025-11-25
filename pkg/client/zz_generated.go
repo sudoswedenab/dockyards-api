@@ -24,6 +24,11 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
+// LoginSSOParams defines parameters for LoginSSO.
+type LoginSSOParams struct {
+	Idp string `form:"idp" json:"idp"`
+}
+
 // CreateNodePoolJSONRequestBody defines body for CreateNodePool for application/json ContentType.
 type CreateNodePoolJSONRequestBody = externalRef0.NodePoolOptions
 
@@ -183,6 +188,9 @@ type ClientInterface interface {
 	LoginWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	Login(ctx context.Context, body LoginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// LoginSSO request
+	LoginSSO(ctx context.Context, params *LoginSSOParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetOrganizations request
 	GetOrganizations(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -456,6 +464,18 @@ func (c *Client) LoginWithBody(ctx context.Context, contentType string, body io.
 
 func (c *Client) Login(ctx context.Context, body LoginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewLoginRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) LoginSSO(ctx context.Context, params *LoginSSOParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewLoginSSORequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1398,6 +1418,51 @@ func NewLoginRequestWithBody(server string, contentType string, body io.Reader) 
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewLoginSSORequest generates requests for LoginSSO
+func NewLoginSSORequest(server string, params *LoginSSOParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/login-sso")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "idp", runtime.ParamLocationQuery, params.Idp); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -3135,6 +3200,9 @@ type ClientWithResponsesInterface interface {
 
 	LoginWithResponse(ctx context.Context, body LoginJSONRequestBody, reqEditors ...RequestEditorFn) (*LoginResponse, error)
 
+	// LoginSSOWithResponse request
+	LoginSSOWithResponse(ctx context.Context, params *LoginSSOParams, reqEditors ...RequestEditorFn) (*LoginSSOResponse, error)
+
 	// GetOrganizationsWithResponse request
 	GetOrganizationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetOrganizationsResponse, error)
 
@@ -3454,6 +3522,27 @@ func (r LoginResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r LoginResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type LoginSSOResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r LoginSSOResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r LoginSSOResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -4405,6 +4494,15 @@ func (c *ClientWithResponses) LoginWithResponse(ctx context.Context, body LoginJ
 	return ParseLoginResponse(rsp)
 }
 
+// LoginSSOWithResponse request returning *LoginSSOResponse
+func (c *ClientWithResponses) LoginSSOWithResponse(ctx context.Context, params *LoginSSOParams, reqEditors ...RequestEditorFn) (*LoginSSOResponse, error) {
+	rsp, err := c.LoginSSO(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseLoginSSOResponse(rsp)
+}
+
 // GetOrganizationsWithResponse request returning *GetOrganizationsResponse
 func (c *ClientWithResponses) GetOrganizationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetOrganizationsResponse, error) {
 	rsp, err := c.GetOrganizations(ctx, reqEditors...)
@@ -5074,6 +5172,22 @@ func ParseLoginResponse(rsp *http.Response) (*LoginResponse, error) {
 		}
 		response.JSON422 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseLoginSSOResponse parses an HTTP response from a LoginSSOWithResponse call
+func ParseLoginSSOResponse(rsp *http.Response) (*LoginSSOResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &LoginSSOResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil

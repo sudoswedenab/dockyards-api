@@ -18,6 +18,11 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
+// LoginSSOParams defines parameters for LoginSSO.
+type LoginSSOParams struct {
+	Idp string `form:"idp" json:"idp"`
+}
+
 // CreateNodePoolJSONRequestBody defines body for CreateNodePool for application/json ContentType.
 type CreateNodePoolJSONRequestBody = externalRef0.NodePoolOptions
 
@@ -101,6 +106,9 @@ type ServerInterface interface {
 
 	// (POST /v1/login)
 	Login(w http.ResponseWriter, r *http.Request)
+
+	// (GET /v1/login-sso)
+	LoginSSO(w http.ResponseWriter, r *http.Request, params LoginSSOParams)
 
 	// (GET /v1/orgs)
 	GetOrganizations(w http.ResponseWriter, r *http.Request)
@@ -387,6 +395,43 @@ func (siw *ServerInterfaceWrapper) Login(w http.ResponseWriter, r *http.Request)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Login(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// LoginSSO operation middleware
+func (siw *ServerInterfaceWrapper) LoginSSO(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params LoginSSOParams
+
+	// ------------- Required query parameter "idp" -------------
+
+	if paramValue := r.URL.Query().Get("idp"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "idp"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "idp", r.URL.Query(), &params.Idp)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "idp", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.LoginSSO(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1754,6 +1799,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/invitations/{organization_name}", wrapper.DeleteInvitation)
 	m.HandleFunc("PATCH "+options.BaseURL+"/v1/invitations/{organization_name}", wrapper.UpdateInvitation)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/login", wrapper.Login)
+	m.HandleFunc("GET "+options.BaseURL+"/v1/login-sso", wrapper.LoginSSO)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/orgs", wrapper.GetOrganizations)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/orgs", wrapper.CreateOrganization)
 	m.HandleFunc("DELETE "+options.BaseURL+"/v1/orgs/{organization_name}", wrapper.DeleteOrganization)

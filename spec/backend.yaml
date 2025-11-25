@@ -11,15 +11,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 openapi: "3.0.0"
 info:
   version: 0.1.0
   title: dockyards-backend
   description: no
 security:
-- bearerAuth: []
+  - bearerAuth: []
 paths:
+  /v1/login-sso:
+    get:
+      operationId: loginSSO
+      parameters:
+        - name: idp
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        302: {}
+        400: {}
   /v1/login:
     post:
       operationId: login
@@ -102,11 +113,11 @@ paths:
     delete:
       operationId: deleteOrganization
       parameters:
-      - name: organization_name
-        required: true
-        in: path
-        schema:
-          type: string
+        - name: organization_name
+          required: true
+          in: path
+          schema:
+            type: string
       responses:
         202: {}
         401: {}
@@ -114,11 +125,11 @@ paths:
     patch:
       operationId: updateOrganization
       parameters:
-      - name: organization_name
-        required: true
-        in: path
-        schema:
-          type: string
+        - name: organization_name
+          required: true
+          in: path
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -138,11 +149,11 @@ paths:
     post:
       operationId: createCluster
       parameters:
-      - name: organization_name
-        required: true
-        in: path
-        schema:
-          type: string
+        - name: organization_name
+          required: true
+          in: path
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -165,11 +176,11 @@ paths:
     get:
       operationId: getOrganizationClusters
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         200:
           content:
@@ -184,16 +195,16 @@ paths:
     delete:
       operationId: deleteCluster
       parameters:
-      - name: organization_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: cluster_name
-        required: true
-        in: path
-        schema:
-          type: string
+        - name: organization_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: cluster_name
+          required: true
+          in: path
+          schema:
+            type: string
       responses:
         202: {}
         400: {}
@@ -204,11 +215,11 @@ paths:
     get:
       operationId: getIpPools
       parameters:
-      - name: organization_name
-        required: true
-        in: path
-        schema:
-          type: string
+        - name: organization_name
+          required: true
+          in: path
+          schema:
+            type: string
       responses:
         200:
           content:
@@ -223,16 +234,16 @@ paths:
     get:
       operationId: listClusterNodePools
       parameters:
-      - name: organization_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: cluster_name
-        required: true
-        in: path
-        schema:
-          type: string
+        - name: organization_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: cluster_name
+          required: true
+          in: path
+          schema:
+            type: string
       responses:
         200:
           content:
@@ -247,16 +258,16 @@ paths:
     post:
       operationId: createClusterNodePool
       parameters:
-      - name: organization_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: cluster_name
-        required: true
-        in: path
-        schema:
-          type: string
+        - name: organization_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: cluster_name
+          required: true
+          in: path
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -282,21 +293,21 @@ paths:
     get:
       operationId: getClusterNodePool
       parameters:
-      - name: organization_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: cluster_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: node_pool_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: cluster_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: node_pool_name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         200:
           content:
@@ -309,21 +320,21 @@ paths:
     delete:
       operationId: deleteClusterNodePool
       parameters:
-      - name: organization_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: cluster_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: node_pool_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: cluster_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: node_pool_name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         202: {}
         400: {}
@@ -332,21 +343,21 @@ paths:
     patch:
       operationId: updateClusterNodePool
       parameters:
-      - name: organization_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: cluster_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: node_pool_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: cluster_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: node_pool_name
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -363,16 +374,16 @@ paths:
     post:
       operationId: createClusterWorkload
       parameters:
-      - name: organization_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: cluster_name
-        required: true
-        in: path
-        schema:
-          type: string
+        - name: organization_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: cluster_name
+          required: true
+          in: path
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -397,16 +408,16 @@ paths:
     get:
       operationId: getClusterWorkloads
       parameters:
-      - name: organization_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: cluster_name
-        required: true
-        in: path
-        schema:
-          type: string
+        - name: organization_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: cluster_name
+          required: true
+          in: path
+          schema:
+            type: string
       responses:
         200:
           content:
@@ -423,21 +434,21 @@ paths:
     delete:
       operationId: deleteClusterWorkload
       parameters:
-      - name: organization_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: cluster_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: workload_name
-        required: true
-        in: path
-        schema:
-          type: string
+        - name: organization_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: cluster_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: workload_name
+          required: true
+          in: path
+          schema:
+            type: string
       responses:
         202: {}
         400: {}
@@ -447,21 +458,21 @@ paths:
     put:
       operationId: updateClusterWorkload
       parameters:
-      - name: organization_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: cluster_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: workload_name
-        required: true
-        in: path
-        schema:
-          type: string
+        - name: organization_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: cluster_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: workload_name
+          required: true
+          in: path
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -482,21 +493,21 @@ paths:
     get:
       operationId: getClusterWorkload
       parameters:
-      - name: organization_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: cluster_name
-        required: true
-        in: path
-        schema:
-          type: string
-      - name: workload_name
-        required: true
-        in: path
-        schema:
-          type: string
+        - name: organization_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: cluster_name
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: workload_name
+          required: true
+          in: path
+          schema:
+            type: string
       responses:
         200:
           content:
@@ -523,11 +534,11 @@ paths:
     post:
       operationId: createOrganizationCredential
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -545,11 +556,11 @@ paths:
     get:
       operationId: getOrganizationCredentials
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         201:
           content:
@@ -564,16 +575,16 @@ paths:
     delete:
       operationId: deleteOrganizationCredential
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: credential_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: credential_name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         202: {}
         401: {}
@@ -581,16 +592,16 @@ paths:
     patch:
       operationId: updateOrganizationCredential
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: credential_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: credential_name
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -604,16 +615,16 @@ paths:
     get:
       operationId: getOrganizationCredential
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: credential_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: credential_name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         200:
           content:
@@ -635,11 +646,11 @@ paths:
       deprecated: true
       operationId: createNodePool
       parameters:
-      - name: cluster_id
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: cluster_id
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -659,16 +670,16 @@ paths:
     post:
       operationId: createClusterKubeconfig
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: cluster_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: cluster_name
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -702,11 +713,11 @@ paths:
     delete:
       operationId: deleteInvitation
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         202: {}
         401: {}
@@ -714,11 +725,11 @@ paths:
     patch:
       operationId: updateInvitation
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -733,11 +744,11 @@ paths:
     get:
       operationId: getOrganizationInvitations
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         200:
           content:
@@ -751,11 +762,11 @@ paths:
     post:
       operationId: createOrganizationInvitation
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -781,16 +792,16 @@ paths:
     delete:
       operationId: deleteOrganizationInvitation
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: invitation_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: invitation_name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         202: {}
         401: {}
@@ -799,16 +810,16 @@ paths:
     get:
       operationId: getClusterNodes
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: cluster_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: cluster_name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         200:
           content:
@@ -823,21 +834,21 @@ paths:
     get:
       operationId: getClusterNode
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: cluster_name
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: node_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: cluster_name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: node_name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         200:
           content:
@@ -850,11 +861,11 @@ paths:
     get:
       operationId: getOrganizationMembers
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         200:
           content:
@@ -869,16 +880,16 @@ paths:
     delete:
       operationId: deleteOrganizationMember
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: member_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: member_name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         202: {}
         400: {}
@@ -888,11 +899,11 @@ paths:
     delete:
       operationId: leaveOrganization
       parameters:
-      - name: organization_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: organization_name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         202: {}
         400: {}
@@ -920,11 +931,11 @@ paths:
     post:
       operationId: updatePassword
       parameters:
-      - name: user_name
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: user_name
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
