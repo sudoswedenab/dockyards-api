@@ -19,11 +19,22 @@ info:
 security:
   - bearerAuth: []
 paths:
+  /v1/callback-sso:
+    get:
+      operationId: callbackSSO
+      responses:
+        302: {}
+        400: {}
   /v1/login-sso:
     get:
       operationId: loginSSO
       parameters:
         - name: idp
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: callbackURL
           in: query
           required: true
           schema:

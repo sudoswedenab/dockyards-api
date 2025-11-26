@@ -20,7 +20,8 @@ const (
 
 // LoginSSOParams defines parameters for LoginSSO.
 type LoginSSOParams struct {
-	Idp string `form:"idp" json:"idp"`
+	Idp         string `form:"idp" json:"idp"`
+	CallbackURL string `form:"callbackURL" json:"callbackURL"`
 }
 
 // CreateNodePoolJSONRequestBody defines body for CreateNodePool for application/json ContentType.
@@ -82,6 +83,9 @@ type VerifyJSONRequestBody = externalRef0.VerifyOptions
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+
+	// (GET /v1/callback-sso)
+	CallbackSSO(w http.ResponseWriter, r *http.Request)
 
 	// (GET /v1/cluster-options)
 	GetClusterOptions(w http.ResponseWriter, r *http.Request)
@@ -236,6 +240,23 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.Handler) http.Handler
+
+// CallbackSSO operation middleware
+func (siw *ServerInterfaceWrapper) CallbackSSO(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CallbackSSO(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
 
 // GetClusterOptions operation middleware
 func (siw *ServerInterfaceWrapper) GetClusterOptions(w http.ResponseWriter, r *http.Request) {
@@ -427,6 +448,21 @@ func (siw *ServerInterfaceWrapper) LoginSSO(w http.ResponseWriter, r *http.Reque
 	err = runtime.BindQueryParameter("form", true, true, "idp", r.URL.Query(), &params.Idp)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "idp", Err: err})
+		return
+	}
+
+	// ------------- Required query parameter "callbackURL" -------------
+
+	if paramValue := r.URL.Query().Get("callbackURL"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "callbackURL"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "callbackURL", r.URL.Query(), &params.CallbackURL)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "callbackURL", Err: err})
 		return
 	}
 
@@ -1791,6 +1827,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 		ErrorHandlerFunc:   options.ErrorHandlerFunc,
 	}
 
+	m.HandleFunc("GET "+options.BaseURL+"/v1/callback-sso", wrapper.CallbackSSO)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/cluster-options", wrapper.GetClusterOptions)
 	m.HandleFunc("GET "+options.BaseURL+"/v1/cluster-templates", wrapper.GetClusterTemplates)
 	m.HandleFunc("POST "+options.BaseURL+"/v1/clusters/{cluster_id}/node-pools", wrapper.CreateNodePool)
