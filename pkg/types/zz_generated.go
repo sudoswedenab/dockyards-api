@@ -140,25 +140,28 @@ type ClaimValidationRule struct {
 
 // Cluster defines model for cluster.
 type Cluster struct {
-	AllocateInternalIP     *bool      `json:"allocate_internal_ip,omitempty"`
-	APIEndpoint            *string    `json:"api_endpoint,omitempty"`
-	Condition              *string    `json:"condition,omitempty"`
-	CreatedAt              time.Time  `json:"created_at"`
-	DeletedAt              *time.Time `json:"deleted_at,omitempty"`
-	DNSZones               *[]string  `json:"dns_zones,omitempty"`
-	Duration               *string    `json:"duration,omitempty"`
-	ExpiresAt              *time.Time `json:"expires_at,omitempty"`
-	ID                     string     `json:"id"`
-	Name                   string     `json:"name"`
-	NoDefaultNetworkPlugin *bool      `json:"no_default_network_plugin,omitempty"`
-	NodePoolsCount         *int       `json:"node_pools_count,omitempty"`
-	NodesCount             *int       `json:"nodes_count,omitempty"`
-	Organization           *string    `json:"organization,omitempty"`
-	PodSubnets             *[]string  `json:"pod_subnets,omitempty"`
-	ServiceSubnets         *[]string  `json:"service_subnets,omitempty"`
-	State                  *string    `json:"state,omitempty"`
-	UpdatedAt              *time.Time `json:"updated_at,omitempty"`
-	Version                *string    `json:"version,omitempty"`
+	AllocateInternalIP *bool   `json:"allocate_internal_ip,omitempty"`
+	APIEndpoint        *string `json:"api_endpoint,omitempty"`
+
+	// AuthenticationConfig provides versioned configuration for authentication.
+	AuthenticationConfig   *AuthenticationConfiguration `json:"authentication_config,omitempty"`
+	Condition              *string                      `json:"condition,omitempty"`
+	CreatedAt              time.Time                    `json:"created_at"`
+	DeletedAt              *time.Time                   `json:"deleted_at,omitempty"`
+	DNSZones               *[]string                    `json:"dns_zones,omitempty"`
+	Duration               *string                      `json:"duration,omitempty"`
+	ExpiresAt              *time.Time                   `json:"expires_at,omitempty"`
+	ID                     string                       `json:"id"`
+	Name                   string                       `json:"name"`
+	NoDefaultNetworkPlugin *bool                        `json:"no_default_network_plugin,omitempty"`
+	NodePoolsCount         *int                         `json:"node_pools_count,omitempty"`
+	NodesCount             *int                         `json:"nodes_count,omitempty"`
+	Organization           *string                      `json:"organization,omitempty"`
+	PodSubnets             *[]string                    `json:"pod_subnets,omitempty"`
+	ServiceSubnets         *[]string                    `json:"service_subnets,omitempty"`
+	State                  *string                      `json:"state,omitempty"`
+	UpdatedAt              *time.Time                   `json:"updated_at,omitempty"`
+	Version                *string                      `json:"version,omitempty"`
 }
 
 // ClusterOptions defines model for cluster_options.

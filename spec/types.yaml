@@ -233,6 +233,8 @@ components:
           type: array
           items:
             type: string
+        authentication_config:
+          $ref: '#/components/schemas/authentication_configuration'
       required:
         - id
         - name
