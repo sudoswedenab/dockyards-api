@@ -225,6 +225,8 @@ components:
           type: integer
         no_default_network_plugin:
           type: boolean
+        no_default_ingress_provider:
+          type: boolean
         pod_subnets:
           type: array
           items:
