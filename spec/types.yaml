@@ -159,7 +159,7 @@ components:
             $ref: '#/components/schemas/node_pool_options'
         ingress_provider:
           type: string
-        no_ingress_provider:
+        no_default_ingress_provider:
           type: boolean
         no_cluster_apps:
           type: boolean

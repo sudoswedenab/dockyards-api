@@ -169,18 +169,18 @@ type ClusterOptions struct {
 	AllocateInternalIP *bool `json:"allocate_internal_ip,omitempty"`
 
 	// AuthenticationConfig provides versioned configuration for authentication.
-	AuthenticationConfig   *AuthenticationConfiguration `json:"authentication_config,omitempty"`
-	ClusterTemplateName    *string                      `json:"cluster_template_name,omitempty"`
-	Duration               *string                      `json:"duration,omitempty"`
-	IngressProvider        *string                      `json:"ingress_provider,omitempty"`
-	Name                   string                       `json:"name"`
-	NoClusterApps          *bool                        `json:"no_cluster_apps,omitempty"`
-	NoDefaultNetworkPlugin *bool                        `json:"no_default_network_plugin,omitempty"`
-	NoIngressProvider      *bool                        `json:"no_ingress_provider,omitempty"`
-	NodePoolOptions        *[]NodePoolOptions           `json:"node_pool_options,omitempty"`
-	PodSubnets             *[]string                    `json:"pod_subnets,omitempty"`
-	ServiceSubnets         *[]string                    `json:"service_subnets,omitempty"`
-	Version                *string                      `json:"version,omitempty"`
+	AuthenticationConfig     *AuthenticationConfiguration `json:"authentication_config,omitempty"`
+	ClusterTemplateName      *string                      `json:"cluster_template_name,omitempty"`
+	Duration                 *string                      `json:"duration,omitempty"`
+	IngressProvider          *string                      `json:"ingress_provider,omitempty"`
+	Name                     string                       `json:"name"`
+	NoClusterApps            *bool                        `json:"no_cluster_apps,omitempty"`
+	NoDefaultIngressProvider *bool                        `json:"no_default_ingress_provider,omitempty"`
+	NoDefaultNetworkPlugin   *bool                        `json:"no_default_network_plugin,omitempty"`
+	NodePoolOptions          *[]NodePoolOptions           `json:"node_pool_options,omitempty"`
+	PodSubnets               *[]string                    `json:"pod_subnets,omitempty"`
+	ServiceSubnets           *[]string                    `json:"service_subnets,omitempty"`
+	Version                  *string                      `json:"version,omitempty"`
 }
 
 // ClusterTemplate defines model for cluster_template.
