@@ -239,6 +239,8 @@ components:
             type: string
         authentication_config:
           $ref: '#/components/schemas/authentication_configuration'
+        advanced:
+          $ref: '#/components/schemas/cluster_advanced_options'
       required:
         - id
         - name
