@@ -165,9 +165,25 @@ type Cluster struct {
 	Version                  *string                      `json:"version,omitempty"`
 }
 
+// ClusterAdvancedOptions Advanced options to apply to cluster, these may be specific to the backing cloud environment that is being used.
+// Tread carefully.
+type ClusterAdvancedOptions struct {
+	// Kubevirt Options applied to kubevirt in case we're running in a kubevirt environment.
+	Kubevirt *ClusterKubevirtOptions `json:"kubevirt,omitempty"`
+}
+
+// ClusterKubevirtOptions Options applied to kubevirt in case we're running in a kubevirt environment.
+type ClusterKubevirtOptions struct {
+	// Talos Options to apply to talos.
+	Talos *ClusterTalosOptions `json:"talos,omitempty"`
+}
+
 // ClusterOptions defines model for cluster_options.
 type ClusterOptions struct {
-	AllocateInternalIP *bool `json:"allocate_internal_ip,omitempty"`
+	// Advanced Advanced options to apply to cluster, these may be specific to the backing cloud environment that is being used.
+	// Tread carefully.
+	Advanced           *ClusterAdvancedOptions `json:"advanced,omitempty"`
+	AllocateInternalIP *bool                   `json:"allocate_internal_ip,omitempty"`
 
 	// AuthenticationConfig provides versioned configuration for authentication.
 	AuthenticationConfig     *AuthenticationConfiguration `json:"authentication_config,omitempty"`
@@ -182,6 +198,18 @@ type ClusterOptions struct {
 	PodSubnets               *[]string                    `json:"pod_subnets,omitempty"`
 	ServiceSubnets           *[]string                    `json:"service_subnets,omitempty"`
 	Version                  *string                      `json:"version,omitempty"`
+}
+
+// ClusterTalosOptions Options to apply to talos.
+type ClusterTalosOptions struct {
+	// AdditionalControlPlaneConfigPatches Patches applied to the talosconfig of controlplane nodes.
+	AdditionalControlPlaneConfigPatches *[]map[string]interface{} `json:"additionalControlPlaneConfigPatches,omitempty"`
+
+	// AdditionalSharedConfigPatches Patches applied to the talosconfig of all nodes.
+	AdditionalSharedConfigPatches *[]map[string]interface{} `json:"additionalSharedConfigPatches,omitempty"`
+
+	// AdditionalWorkerConfigPatches Patches applied to the talosconfig of worker nodes.
+	AdditionalWorkerConfigPatches *[]map[string]interface{} `json:"additionalWorkerConfigPatches,omitempty"`
 }
 
 // ClusterTemplate defines model for cluster_template.
