@@ -981,8 +981,14 @@ components:
           type: string
     cluster_advanced_options:
       description: |
-        Advanced options to apply to cluster, these may be specific to the backing cloud environment that is being used.
-        Tread carefully.
+        These are meant as an escape hatch for users who know it in their heart
+        that on their cloud platform there is a configuration option that, when
+        tuned, makes their cluster go wrooom, but since dockyards either hasn't
+        or wont add explicit support for the feature, they cannot turn the knob.
+
+        These options require an advanced knowledge of how the platform operates
+        and which cloud environment is being actively used, so tread carefully
+        when using these options.
       properties:
         kubevirt:
           $ref: "#/components/schemas/cluster_kubevirt_options"

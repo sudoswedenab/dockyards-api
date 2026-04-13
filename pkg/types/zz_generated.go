@@ -140,8 +140,17 @@ type ClaimValidationRule struct {
 
 // Cluster defines model for cluster.
 type Cluster struct {
-	AllocateInternalIP *bool   `json:"allocate_internal_ip,omitempty"`
-	APIEndpoint        *string `json:"api_endpoint,omitempty"`
+	// Advanced These are meant as an escape hatch for users who know it in their heart
+	// that on their cloud platform there is a configuration option that, when
+	// tuned, makes their cluster go wrooom, but since dockyards either hasn't
+	// or wont add explicit support for the feature, they cannot turn the knob.
+	//
+	// These options require an advanced knowledge of how the platform operates
+	// and which cloud environment is being actively used, so tread carefully
+	// when using these options.
+	Advanced           *ClusterAdvancedOptions `json:"advanced,omitempty"`
+	AllocateInternalIP *bool                   `json:"allocate_internal_ip,omitempty"`
+	APIEndpoint        *string                 `json:"api_endpoint,omitempty"`
 
 	// AuthenticationConfig provides versioned configuration for authentication.
 	AuthenticationConfig     *AuthenticationConfiguration `json:"authentication_config,omitempty"`
@@ -165,8 +174,14 @@ type Cluster struct {
 	Version                  *string                      `json:"version,omitempty"`
 }
 
-// ClusterAdvancedOptions Advanced options to apply to cluster, these may be specific to the backing cloud environment that is being used.
-// Tread carefully.
+// ClusterAdvancedOptions These are meant as an escape hatch for users who know it in their heart
+// that on their cloud platform there is a configuration option that, when
+// tuned, makes their cluster go wrooom, but since dockyards either hasn't
+// or wont add explicit support for the feature, they cannot turn the knob.
+//
+// These options require an advanced knowledge of how the platform operates
+// and which cloud environment is being actively used, so tread carefully
+// when using these options.
 type ClusterAdvancedOptions struct {
 	// Kubevirt Options applied to kubevirt in case we're running in a kubevirt environment.
 	Kubevirt *ClusterKubevirtOptions `json:"kubevirt,omitempty"`
@@ -180,8 +195,14 @@ type ClusterKubevirtOptions struct {
 
 // ClusterOptions defines model for cluster_options.
 type ClusterOptions struct {
-	// Advanced Advanced options to apply to cluster, these may be specific to the backing cloud environment that is being used.
-	// Tread carefully.
+	// Advanced These are meant as an escape hatch for users who know it in their heart
+	// that on their cloud platform there is a configuration option that, when
+	// tuned, makes their cluster go wrooom, but since dockyards either hasn't
+	// or wont add explicit support for the feature, they cannot turn the knob.
+	//
+	// These options require an advanced knowledge of how the platform operates
+	// and which cloud environment is being actively used, so tread carefully
+	// when using these options.
 	Advanced           *ClusterAdvancedOptions `json:"advanced,omitempty"`
 	AllocateInternalIP *bool                   `json:"allocate_internal_ip,omitempty"`
 
@@ -203,13 +224,13 @@ type ClusterOptions struct {
 // ClusterTalosOptions Options to apply to talos.
 type ClusterTalosOptions struct {
 	// AdditionalControlPlaneConfigPatches Patches applied to the talosconfig of controlplane nodes.
-	AdditionalControlPlaneConfigPatches *[]map[string]interface{} `json:"additionalControlPlaneConfigPatches,omitempty"`
+	AdditionalControlPlaneConfigPatches *[]map[string]interface{} `json:"additional_control_plane_config_patches,omitempty"`
 
 	// AdditionalSharedConfigPatches Patches applied to the talosconfig of all nodes.
-	AdditionalSharedConfigPatches *[]map[string]interface{} `json:"additionalSharedConfigPatches,omitempty"`
+	AdditionalSharedConfigPatches *[]map[string]interface{} `json:"additional_shared_config_patches,omitempty"`
 
 	// AdditionalWorkerConfigPatches Patches applied to the talosconfig of worker nodes.
-	AdditionalWorkerConfigPatches *[]map[string]interface{} `json:"additionalWorkerConfigPatches,omitempty"`
+	AdditionalWorkerConfigPatches *[]map[string]interface{} `json:"additional_worker_config_patches,omitempty"`
 }
 
 // ClusterTemplate defines model for cluster_template.
