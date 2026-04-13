@@ -996,19 +996,19 @@ components:
       description: |
         Options to apply to talos.
       properties:
-        additionalSharedConfigPatches:
+        additional_shared_config_patches:
           description: |
             Patches applied to the talosconfig of all nodes.
           type: array
           items:
             type: object
-        additionalControlPlaneConfigPatches:
+        additional_control_plane_config_patches:
           description: |
             Patches applied to the talosconfig of controlplane nodes.
           type: array
           items:
             type: object
-        additionalWorkerConfigPatches:
+        additional_worker_config_patches:
           description: |
             Patches applied to the talosconfig of worker nodes.
           type: array
