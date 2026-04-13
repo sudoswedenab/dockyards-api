@@ -181,6 +181,8 @@ components:
             type: string
         authentication_config:
           $ref: '#/components/schemas/authentication_configuration'
+        advanced:
+          $ref: '#/components/schemas/cluster_advanced_options'
       required:
         - name
     cluster:
@@ -975,3 +977,38 @@ components:
           description: |
             Path for which anonymous auth is enabled.
           type: string
+    cluster_advanced_options:
+      description: |
+        Advanced options to apply to cluster, these may be specific to the backing cloud environment that is being used.
+        Tread carefully.
+      properties:
+        kubevirt:
+          $ref: "#/components/schemas/cluster_kubevirt_options"
+    cluster_kubevirt_options:
+      description: |
+        Options applied to kubevirt in case we're running in a kubevirt environment.
+      properties:
+        talos:
+          $ref: "#/components/schemas/cluster_talos_options"
+    cluster_talos_options:
+      description: |
+        Options to apply to talos.
+      properties:
+        additionalSharedConfigPatches:
+          description: |
+            Patches applied to the talosconfig of all nodes.
+          type: array
+          items:
+            type: object
+        additionalControlPlaneConfigPatches:
+          description: |
+            Patches applied to the talosconfig of controlplane nodes.
+          type: array
+          items:
+            type: object
+        additionalWorkerConfigPatches:
+          description: |
+            Patches applied to the talosconfig of worker nodes.
+          type: array
+          items:
+            type: object
