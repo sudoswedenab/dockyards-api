@@ -231,6 +231,14 @@ type ClusterTalosOptions struct {
 
 	// AdditionalWorkerConfigPatches Patches applied to the talosconfig of worker nodes.
 	AdditionalWorkerConfigPatches *[]map[string]interface{} `json:"additional_worker_config_patches,omitempty"`
+
+	// ExternalNodeInterface Name of the additional network interface to be applied on all nodes
+	// in the cluster.
+	ExternalNodeInterface *string `json:"external_node_interface,omitempty"`
+
+	// ExternalNodeIpv4Subnet Subnet to be used on the additional network interface on all nodes
+	// in the cluster.
+	ExternalNodeIpv4Subnet *string `json:"external_node_ipv4_subnet,omitempty"`
 }
 
 // ClusterTemplate defines model for cluster_template.
