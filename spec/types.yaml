@@ -90,6 +90,10 @@ components:
           type: string
         name:
           type: string
+        node_labels:
+          type: object
+          additionalProperties:
+            type: string
         control_plane:
           type: boolean
         control_plane_components_only:
@@ -147,6 +151,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/storage_resource'
+        node_labels:
+          type: object
+          additionalProperties:
+            type: string
     cluster_options:
       properties:
         name:
