@@ -183,8 +183,28 @@ type Cluster struct {
 // and which cloud environment is being actively used, so tread carefully
 // when using these options.
 type ClusterAdvancedOptions struct {
+	// Gateway Options to override the installation-wide Gateway API configuration
+	// for this specific DockyardsCluster.
+	Gateway *ClusterGatewayOptions `json:"gateway,omitempty"`
+
 	// Kubevirt Options applied to kubevirt in case we're running in a kubevirt environment.
 	Kubevirt *ClusterKubevirtOptions `json:"kubevirt,omitempty"`
+}
+
+// ClusterGatewayOptions Options to override the installation-wide Gateway API configuration
+// for this specific DockyardsCluster.
+type ClusterGatewayOptions struct {
+	// ParentRef Gateway parentRef settings used for this specific DockyardsCluster.
+	ParentRef *ClusterGatewayParentRefOptions `json:"parentRef,omitempty"`
+}
+
+// ClusterGatewayParentRefOptions Gateway parentRef settings used for this specific DockyardsCluster.
+type ClusterGatewayParentRefOptions struct {
+	// Name Gateway name to use for this cluster.
+	Name *string `json:"name,omitempty"`
+
+	// Namespace Gateway namespace to use for this cluster.
+	Namespace *string `json:"namespace,omitempty"`
 }
 
 // ClusterKubevirtOptions Options applied to kubevirt in case we're running in a kubevirt environment.
