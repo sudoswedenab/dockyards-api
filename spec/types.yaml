@@ -1004,6 +1004,11 @@ components:
       description: |
         Options applied to kubevirt in case we're running in a kubevirt environment.
       properties:
+        dataVolumeStorageClassName:
+          description: |
+            Overrides the installation-wide default StorageClass for kubevirt
+            DataVolumes on this specific DockyardsCluster.
+          type: string
         talos:
           $ref: "#/components/schemas/cluster_talos_options"
     cluster_talos_options:

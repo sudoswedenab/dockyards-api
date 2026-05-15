@@ -189,6 +189,10 @@ type ClusterAdvancedOptions struct {
 
 // ClusterKubevirtOptions Options applied to kubevirt in case we're running in a kubevirt environment.
 type ClusterKubevirtOptions struct {
+	// DataVolumeStorageClassName Overrides the installation-wide default StorageClass for kubevirt
+	// DataVolumes on this specific DockyardsCluster.
+	DataVolumeStorageClassName *string `json:"dataVolumeStorageClassName,omitempty"`
+
 	// Talos Options to apply to talos.
 	Talos *ClusterTalosOptions `json:"talos,omitempty"`
 }
