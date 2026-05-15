@@ -503,7 +503,9 @@ type NodePool struct {
 	ID                         string             `json:"id"`
 	LoadBalancer               *bool              `json:"load_balancer,omitempty"`
 	Name                       string             `json:"name"`
+	NodeAnnotations            *map[string]string `json:"node_annotations,omitempty"`
 	NodeLabels                 *map[string]string `json:"node_labels,omitempty"`
+	NodeTaints                 *map[string]string `json:"node_taints,omitempty"`
 	Nodes                      *[]Node            `json:"nodes,omitempty"`
 	Quantity                   *int               `json:"quantity,omitempty"`
 	RAMSize                    *string            `json:"ram_size,omitempty"`
@@ -519,7 +521,9 @@ type NodePoolOptions struct {
 	DiskSize                   *string            `json:"disk_size,omitempty"`
 	LoadBalancer               *bool              `json:"load_balancer,omitempty"`
 	Name                       *string            `json:"name,omitempty"`
+	NodeAnnotations            *map[string]string `json:"node_annotations,omitempty"`
 	NodeLabels                 *map[string]string `json:"node_labels,omitempty"`
+	NodeTaints                 *map[string]string `json:"node_taints,omitempty"`
 	Quantity                   *int               `json:"quantity,omitempty"`
 	RAMSize                    *string            `json:"ram_size,omitempty"`
 	StorageResources           *[]StorageResource `json:"storage_resources,omitempty"`

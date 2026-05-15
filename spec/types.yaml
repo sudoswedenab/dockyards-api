@@ -90,6 +90,14 @@ components:
           type: string
         name:
           type: string
+        node_annotations:
+          type: object
+          additionalProperties:
+            type: string
+        node_taints:
+          type: object
+          additionalProperties:
+            type: string
         node_labels:
           type: object
           additionalProperties:
@@ -151,6 +159,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/storage_resource'
+        node_annotations:
+          type: object
+          additionalProperties:
+            type: string
+        node_taints:
+          type: object
+          additionalProperties:
+            type: string
         node_labels:
           type: object
           additionalProperties:
