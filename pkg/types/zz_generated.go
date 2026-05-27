@@ -262,11 +262,8 @@ type ClusterTalosOptions struct {
 
 	// ExternalNodeIpv4Subnet Subnet to be used on the additional network interface on all nodes
 	// in the cluster.
-	ExternalNodeIpv4Subnet *string `json:"external_node_ipv4_subnet,omitempty"`
-
-	// InstallerURL A custom (i.e. not Talos Image Factory) URL from which an archive with
-	// a Talos image can be pulled
-	InstallerURL *string `json:"installer_url,omitempty"`
+	ExternalNodeIpv4Subnet *string                   `json:"external_node_ipv4_subnet,omitempty"`
+	InstallImage           *TalosInstallImageOptions `json:"install_image,omitempty"`
 }
 
 // ClusterTemplate defines model for cluster_template.
@@ -622,6 +619,16 @@ type SystemInfo struct {
 	OperatingSystem         *string `json:"operating_system,omitempty"`
 	OsImage                 *string `json:"os_image,omitempty"`
 	SystemUUID              *string `json:"system_uuid,omitempty"`
+}
+
+// TalosInstallImageOptions defines model for talos_install_image_options.
+type TalosInstallImageOptions struct {
+	// Size Size of the DataVolume to be allocated for this image
+	Size *string `json:"size,omitempty"`
+
+	// URL A custom (i.e. not Talos Image Factory) URL from which an archive with
+	// a Talos image can be pulled
+	URL *string `json:"url,omitempty"`
 }
 
 // Tokens defines model for tokens.

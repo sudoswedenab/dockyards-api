@@ -1052,11 +1052,8 @@ components:
       description: |
         Options to apply to talos.
       properties:
-        installer_url:
-          description: |
-            A custom (i.e. not Talos Image Factory) URL from which an archive with
-            a Talos image can be pulled
-          type: string
+        install_image:
+          $ref: "#/components/schemas/talos_install_image_options"
         external_node_interface:
           description: |
             Name of the additional network interface to be applied on all nodes
@@ -1085,3 +1082,15 @@ components:
           type: array
           items:
             type: object
+    talos_install_image_options:
+      description:
+      properties:
+        url:
+          description: |
+            A custom (i.e. not Talos Image Factory) URL from which an archive with
+            a Talos image can be pulled
+          type: string
+        size:
+          description: | 
+            Size of the DataVolume to be allocated for this image
+          type: string
