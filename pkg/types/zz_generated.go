@@ -263,6 +263,10 @@ type ClusterTalosOptions struct {
 	// ExternalNodeIpv4Subnet Subnet to be used on the additional network interface on all nodes
 	// in the cluster.
 	ExternalNodeIpv4Subnet *string `json:"external_node_ipv4_subnet,omitempty"`
+
+	// InstallerURL A custom (i.e. not Talos Image Factory) URL from which an archive with
+	// a Talos image can be pulled
+	InstallerURL *string `json:"installer_url,omitempty"`
 }
 
 // ClusterTemplate defines model for cluster_template.
