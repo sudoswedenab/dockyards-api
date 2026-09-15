@@ -171,6 +171,22 @@ components:
           type: object
           additionalProperties:
             type: string
+        node_class_ref:
+          $ref: '#/components/schemas/node_class_reference_options'
+    node_class_reference_options:
+      properties:
+        api_group:
+          type: string
+        kind:
+          type: string
+        name:
+          type: string
+        namespace:
+          type: string
+      required:
+        - kind
+        - name
+        - namespace
     cluster_options:
       properties:
         name:

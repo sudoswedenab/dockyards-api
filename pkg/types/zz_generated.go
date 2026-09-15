@@ -492,6 +492,14 @@ type Node struct {
 	UpdatedAt  *time.Time  `json:"updated_at,omitempty"`
 }
 
+// NodeClassReferenceOptions defines model for node_class_reference_options.
+type NodeClassReferenceOptions struct {
+	APIGroup  *string `json:"api_group,omitempty"`
+	Kind      string  `json:"kind"`
+	Name      string  `json:"name"`
+	Namespace string  `json:"namespace"`
+}
+
 // NodePool defines model for node_pool.
 type NodePool struct {
 	ClusterID                  *string            `json:"cluster_id,omitempty"`
@@ -516,18 +524,19 @@ type NodePool struct {
 
 // NodePoolOptions defines model for node_pool_options.
 type NodePoolOptions struct {
-	ControlPlane               *bool              `json:"control_plane,omitempty"`
-	ControlPlaneComponentsOnly *bool              `json:"control_plane_components_only,omitempty"`
-	CPUCount                   *int               `json:"cpu_count,omitempty"`
-	DiskSize                   *string            `json:"disk_size,omitempty"`
-	LoadBalancer               *bool              `json:"load_balancer,omitempty"`
-	Name                       *string            `json:"name,omitempty"`
-	NodeAnnotations            *map[string]string `json:"node_annotations,omitempty"`
-	NodeLabels                 *map[string]string `json:"node_labels,omitempty"`
-	NodeTaints                 *map[string]string `json:"node_taints,omitempty"`
-	Quantity                   *int               `json:"quantity,omitempty"`
-	RAMSize                    *string            `json:"ram_size,omitempty"`
-	StorageResources           *[]StorageResource `json:"storage_resources,omitempty"`
+	ControlPlane               *bool                      `json:"control_plane,omitempty"`
+	ControlPlaneComponentsOnly *bool                      `json:"control_plane_components_only,omitempty"`
+	CPUCount                   *int                       `json:"cpu_count,omitempty"`
+	DiskSize                   *string                    `json:"disk_size,omitempty"`
+	LoadBalancer               *bool                      `json:"load_balancer,omitempty"`
+	Name                       *string                    `json:"name,omitempty"`
+	NodeAnnotations            *map[string]string         `json:"node_annotations,omitempty"`
+	NodeClassRef               *NodeClassReferenceOptions `json:"node_class_ref,omitempty"`
+	NodeLabels                 *map[string]string         `json:"node_labels,omitempty"`
+	NodeTaints                 *map[string]string         `json:"node_taints,omitempty"`
+	Quantity                   *int                       `json:"quantity,omitempty"`
+	RAMSize                    *string                    `json:"ram_size,omitempty"`
+	StorageResources           *[]StorageResource         `json:"storage_resources,omitempty"`
 }
 
 // Options defines model for options.
